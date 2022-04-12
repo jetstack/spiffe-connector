@@ -1,7 +1,10 @@
 // Package types contains the config file structs
 package types
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // ACL is a mapping between a given principal and the credentials for services it will gain access to.
 type ACL struct {
@@ -22,15 +25,26 @@ type Config struct {
 
 func (c *Config) Validate() []error {
 	var errors []error
-	seenPrincipals := make(map[string]int)
-	for _, principal := range c.ACLs {
-		if _, found := seenPrincipals[principal.MatchPrincipal]; !found {
-			seenPrincipals[principal.MatchPrincipal] = 1
-		} else {
-			seenPrincipals[principal.MatchPrincipal]++
+
+	// Validate that MatchPrincipals are SPIFFE IDs or patterns
+	for _, acl := range c.ACLs {
+		if !strings.HasPrefix(acl.MatchPrincipal, "spiffe://") {
+			errors = append(errors, fmt.Errorf("%q is not a valid principal matcher", acl.MatchPrincipal))
 		}
+	}
+
+	// Validate principals are not duplicated
+	seenPrincipals := make(map[string]int)
+	for _, acl := range c.ACLs {
+		if _, found := seenPrincipals[acl.MatchPrincipal]; !found {
+			seenPrincipals[acl.MatchPrincipal] = 1
+		} else {
+			seenPrincipals[acl.MatchPrincipal]++
+		}
+
+		// Validate providers are not duplicated
 		seenProviders := make(map[string]int)
-		for _, provider := range principal.Credentials {
+		for _, provider := range acl.Credentials {
 			if _, found := seenProviders[provider.Provider]; !found {
 				seenProviders[provider.Provider] = 1
 			} else {
@@ -39,7 +53,7 @@ func (c *Config) Validate() []error {
 		}
 		for provider, count := range seenProviders {
 			if count > 1 {
-				errors = append(errors, fmt.Errorf("duplicate provider %q for principal %q (seen %d times)", provider, principal.MatchPrincipal, count))
+				errors = append(errors, fmt.Errorf("duplicate provider %q for principal %q (seen %d times)", provider, acl.MatchPrincipal, count))
 			}
 		}
 	}

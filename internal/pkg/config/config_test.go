@@ -114,6 +114,13 @@ acls:
 `,
 			ExpectedError: errors.New(`config validation failed: duplicate provider "google" for principal "spiffe://foo/bar/baz" (seen 2 times)`),
 		},
+		"invalid config with non-SPIFFE principal ID": {
+			InputFile: `---
+acls:
+- match_principal: "https://foo/bar/baz"
+`,
+			ExpectedError: errors.New(`config validation failed: "https://foo/bar/baz" is not a valid principal matcher`),
+		},
 	}
 
 	for testName, tc := range testCases {
