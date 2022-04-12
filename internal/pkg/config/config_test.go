@@ -13,7 +13,6 @@ import (
 )
 
 func TestLoadConfigFromFs(t *testing.T) {
-
 	testCases := map[string]struct {
 		InputFile      string
 		ExpectedConfig *types.Config
