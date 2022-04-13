@@ -111,14 +111,21 @@ acls:
   - provider: "google"
     object_reference: "service-account@example.com"
 `,
-			ExpectedError: errors.New(`config validation failed: duplicate provider "google" for principal "spiffe://foo/bar/baz" (seen 2 times)`),
+			ExpectedError: errors.New("config validation failed: principal \"spiffe://foo/bar/baz\" is invalid: duplicate provider \"google\" (seen 2 times)"),
+		},
+		"invalid config with bad ACL match_principals": {
+			InputFile: `---
+acls:
+- match_principal: "missing/spiffe/prefix"
+`,
+			ExpectedError: errors.New("config validation failed: principal \"missing/spiffe/prefix\" is invalid: must start with \"spiffe://\""),
 		},
 		"invalid config with non-SPIFFE principal ID": {
 			InputFile: `---
 acls:
 - match_principal: "https://foo/bar/baz"
 `,
-			ExpectedError: errors.New(`config validation failed: "https://foo/bar/baz" is not a valid principal matcher`),
+			ExpectedError: errors.New("config validation failed: principal \"https://foo/bar/baz\" is invalid: must start with \"spiffe://\""),
 		},
 	}
 

@@ -2,56 +2,32 @@ package principal
 
 import (
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/jetstack/spiffe-connector/types"
 )
 
+// MatchingACLs accepts a list of types.ACL and a principal string to match against.
+// It returns false if there was no match found, and an ACL which matched if
+// one was found.
 func MatchingACL(acls []types.ACL, principal string) (bool, *types.ACL, error) {
-	// attempt to find an exact match
-	for _, acl := range acls {
+	var globMatchingACLIndexes []int
+	for i, acl := range acls {
 		if acl.MatchPrincipal == principal {
 			return true, &acl, nil
 		}
-	}
 
-	// attempt to find match from glob
-	globCount := func(acl types.ACL) int {
-		// +1 for each *, then +1 extra for each **
-		return strings.Count(acl.MatchPrincipal, "*") +
-			strings.Count(acl.MatchPrincipal, "**")
-	}
-	globMatches := make(map[int]int)
-	// defaulted to index from any match so only glob ACLs are compared.
-	var mostSpecificACL int
-	for i, acl := range acls {
-		if !strings.Contains(acl.MatchPrincipal, "*") {
-			continue
-		}
-
-		// ** can match many path components
-		generatedPattern := strings.ReplaceAll(acl.MatchPrincipal, "**", `[A-Za-z0-9-\/]+`)
-		// * can match a single path component
-		generatedPattern = strings.ReplaceAll(generatedPattern, "*", `[A-Za-z0-9-]+`)
-
-		re, err := regexp.Compile(generatedPattern)
-		if err != nil {
-			return false, &types.ACL{}, fmt.Errorf("failed to generate pattern to match %q ACL: %w", acl.MatchPrincipal, err)
-		}
-
-		if re.Match([]byte(principal)) {
-			mostSpecificACL = i
-			globMatches[i] = globCount(acl)
+		if strings.HasPrefix(principal, strings.TrimSuffix(acl.MatchPrincipal, "*")) {
+			globMatchingACLIndexes = append(globMatchingACLIndexes, i)
 		}
 	}
-	if len(globMatches) > 0 {
-		for index, score := range globMatches {
-			if score < globMatches[mostSpecificACL] {
-				mostSpecificACL = index
-			}
-		}
-		return true, &acls[mostSpecificACL], nil
+
+	if len(globMatchingACLIndexes) == 1 {
+		return true, &acls[globMatchingACLIndexes[0]], nil
+	}
+
+	if len(globMatchingACLIndexes) > 1 {
+		return false, &types.ACL{}, fmt.Errorf("principal matched multple ACLs")
 	}
 
 	return false, &types.ACL{}, nil
