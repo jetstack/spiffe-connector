@@ -18,7 +18,9 @@ func MatchingACL(acls []types.ACL, principal string) (bool, *types.ACL, error) {
 
 	// attempt to find match from glob
 	globCount := func(acl types.ACL) int {
-		return strings.Count(acl.MatchPrincipal, "*")
+		// +1 for each *, then +1 extra for each **
+		return strings.Count(acl.MatchPrincipal, "*") +
+			strings.Count(acl.MatchPrincipal, "**")
 	}
 	globMatches := make(map[int]int)
 	// defaulted to index from any match so only glob ACLs are compared.
@@ -27,9 +29,11 @@ func MatchingACL(acls []types.ACL, principal string) (bool, *types.ACL, error) {
 		if !strings.Contains(acl.MatchPrincipal, "*") {
 			continue
 		}
-		fmt.Println(acl.MatchPrincipal)
 
-		generatedPattern := strings.ReplaceAll(acl.MatchPrincipal, "*", `[A-Za-z0-9-]+`)
+		// ** can match many path components
+		generatedPattern := strings.ReplaceAll(acl.MatchPrincipal, "**", `[A-Za-z0-9-\/]+`)
+		// * can match a single path component
+		generatedPattern = strings.ReplaceAll(generatedPattern, "*", `[A-Za-z0-9-]+`)
 
 		re, err := regexp.Compile(generatedPattern)
 		if err != nil {

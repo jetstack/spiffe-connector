@@ -1,7 +1,6 @@
 package principal
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -81,11 +80,55 @@ func TestMatchingACLs(t *testing.T) {
 				MatchPrincipal: "spiffe://foo/*",
 			},
 		},
+		"result is most specific glob, by path components": {
+			Principal: "spiffe://foo/baz/bar",
+			ACLs: []types.ACL{
+				{
+					MatchPrincipal: "spiffe://foo/**/bar",
+				},
+				{
+					MatchPrincipal: "spiffe://foo/*/bar",
+				},
+				{
+					MatchPrincipal: "spiffe://foo/*/*",
+				},
+			},
+			MatchingACL: &types.ACL{
+				MatchPrincipal: "spiffe://foo/*/bar",
+			},
+		},
+		"double glob matches many path components": {
+			Principal: "spiffe://foo/xxx/xxx/xxx/bar",
+			ACLs: []types.ACL{
+				{
+					MatchPrincipal: "spiffe://foo/*/foo",
+				},
+				{
+					MatchPrincipal: "spiffe://foo/**/bar",
+				},
+			},
+			MatchingACL: &types.ACL{
+				MatchPrincipal: "spiffe://foo/**/bar",
+			},
+		},
+		"by path component match count": {
+			Principal: "spiffe://foo/baz/fax/bax/bar",
+			ACLs: []types.ACL{
+				{
+					MatchPrincipal: "spiffe://foo/*/fax/bax/*",
+				},
+				{
+					MatchPrincipal: "spiffe://foo/**/bar",
+				},
+			},
+			MatchingACL: &types.ACL{
+				MatchPrincipal: "spiffe://foo/*/fax/bax/*",
+			},
+		},
 	}
 
 	for testName, tc := range testCases {
 		t.Run(testName, func(t *testing.T) {
-			fmt.Println(testName)
 			found, result, err := MatchingACL(tc.ACLs, tc.Principal)
 			require.NoError(t, err)
 			if !found {
