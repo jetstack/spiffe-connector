@@ -24,6 +24,7 @@ func TestACLValidate(t *testing.T) {
 			},
 			ExpectedErrors: []error{
 				errors.New("cannot non-suffix wildcard character \"*\""),
+				errors.New("path segment characters are limited to letters, numbers, dots, dashes, and underscores"),
 			},
 		},
 		"with match principal with wildcard": {
@@ -37,7 +38,7 @@ func TestACLValidate(t *testing.T) {
 				MatchPrincipal: "spiffe://bar/foo/",
 			},
 			ExpectedErrors: []error{
-				errors.New("cannot have trailing \"/\""),
+				errors.New("path cannot have a trailing slash"),
 			},
 		},
 		"with match principal with no SPIFFE scheme": {
@@ -45,15 +46,23 @@ func TestACLValidate(t *testing.T) {
 				MatchPrincipal: "bar/foo",
 			},
 			ExpectedErrors: []error{
-				errors.New("must start with \"spiffe://\""),
+				errors.New("scheme is missing or invalid"),
 			},
 		},
-		"with match principal invalid URL chars": {
+		"with match principal invalid path chars": {
+			ACL: ACL{
+				MatchPrincipal: "spiffe://td/🌐/foo",
+			},
+			ExpectedErrors: []error{
+				errors.New("path segment characters are limited to letters, numbers, dots, dashes, and underscores"),
+			},
+		},
+		"with match principal invalid trust domain chars": {
 			ACL: ACL{
 				MatchPrincipal: "spiffe://🌐/foo",
 			},
 			ExpectedErrors: []error{
-				errors.New("parsed URI did not match: \"spiffe://%F0%9F%8C%90/foo\""),
+				errors.New("trust domain characters are limited to lowercase letters, numbers, dots, dashes, and underscores"),
 			},
 		},
 		"with match principal with query": {
@@ -61,7 +70,7 @@ func TestACLValidate(t *testing.T) {
 				MatchPrincipal: "spiffe://bar/foo?=baz",
 			},
 			ExpectedErrors: []error{
-				errors.New("URI must have blank query, has: \"=baz\""),
+				errors.New("path segment characters are limited to letters, numbers, dots, dashes, and underscores"),
 			},
 		},
 		"with duplicated providers": {
@@ -74,6 +83,17 @@ func TestACLValidate(t *testing.T) {
 			},
 			ExpectedErrors: []error{
 				errors.New("duplicate provider \"google\" (seen 2 times)"),
+			},
+		},
+		`malformed spiffe ID with "//"`: {
+			ACL: ACL{
+				MatchPrincipal: "spiffe://bar/things//baz",
+				Credentials: []Credential{
+					{Provider: "google", ObjectReference: "foo/bar"},
+				},
+			},
+			ExpectedErrors: []error{
+				errors.New("path cannot contain empty segments"),
 			},
 		},
 	}

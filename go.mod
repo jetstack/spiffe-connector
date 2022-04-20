@@ -3,6 +3,7 @@ module github.com/jetstack/spiffe-connector
 go 1.17
 
 require (
+	github.com/spiffe/go-spiffe/v2 v2.0.0
 	github.com/stretchr/testify v1.7.1
 	github.com/urfave/cli/v2 v2.4.0
 	google.golang.org/api v0.74.0
