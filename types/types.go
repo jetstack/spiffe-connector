@@ -3,8 +3,9 @@ package types
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
+
+	"github.com/spiffe/go-spiffe/v2/spiffeid"
 )
 
 // ACL is a mapping between a given principal and the credentials for services it will gain access to.
@@ -22,27 +23,10 @@ func (a *ACL) Validate() []error {
 		errors = append(errors, fmt.Errorf(`cannot non-suffix wildcard character "*"`))
 	}
 
-	if !strings.HasPrefix(a.MatchPrincipal, "spiffe://") {
-		errors = append(errors, fmt.Errorf(`must start with "spiffe://"`))
-	} else {
-		if strings.Contains(strings.TrimPrefix(a.MatchPrincipal, "spiffe://"), "//") {
-			errors = append(errors, fmt.Errorf(`cannot have double "//"`))
-		}
-	}
-
-	if strings.HasSuffix(a.MatchPrincipal, "/") {
-		errors = append(errors, fmt.Errorf(`cannot have trailing "/"`))
-	}
-
-	parsedURL, err := url.Parse(nonWildCardMatchPrincipal)
+	// After removing a possible trailing wildcard, defer validation of the SVID to SPIFFE
+	_, err := spiffeid.FromString(nonWildCardMatchPrincipal)
 	if err != nil {
 		errors = append(errors, err)
-	}
-	if parsedURL.String() != nonWildCardMatchPrincipal {
-		errors = append(errors, fmt.Errorf("parsed URI did not match: %q", parsedURL.String()))
-	}
-	if parsedURL.RawQuery != "" {
-		errors = append(errors, fmt.Errorf("URI must have blank query, has: %q", parsedURL.RawQuery))
 	}
 
 	seenProviders := make(map[string]int)

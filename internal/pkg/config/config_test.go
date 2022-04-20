@@ -118,14 +118,14 @@ acls:
 acls:
 - match_principal: "missing/spiffe/prefix"
 `,
-			ExpectedError: errors.New("config validation failed: principal \"missing/spiffe/prefix\" is invalid: must start with \"spiffe://\""),
+			ExpectedError: errors.New("config validation failed: principal \"missing/spiffe/prefix\" is invalid: scheme is missing or invalid"),
 		},
 		"invalid config with non-SPIFFE principal ID": {
 			InputFile: `---
 acls:
 - match_principal: "https://foo/bar/baz"
 `,
-			ExpectedError: errors.New("config validation failed: principal \"https://foo/bar/baz\" is invalid: must start with \"spiffe://\""),
+			ExpectedError: errors.New("config validation failed: principal \"https://foo/bar/baz\" is invalid: scheme is missing or invalid"),
 		},
 	}
 
