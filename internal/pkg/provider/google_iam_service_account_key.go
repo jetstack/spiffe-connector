@@ -13,9 +13,12 @@ import (
 )
 
 func NewGoogleIAMServiceAccountKeyProvider(ctx context.Context, options GoogleIAMServiceAccountKeyProviderOptions) (GoogleIAMServiceAccountKeyProvider, error) {
+	// This is the default host used to check the functioning of the provider
 	// TODO this is from a private package variable, find a way to determine it dynamically
 	pingHost := "iam.googleapis.com:https"
 
+	// if the options endpoint has been set then we need to check it's valid and update the pingHost value to make sure
+	// that Ping functions correctly and the Google client is initialised with the new host
 	if options.Endpoint != "" {
 		ep, err := url.Parse(options.Endpoint)
 		if err != nil {
@@ -31,12 +34,14 @@ func NewGoogleIAMServiceAccountKeyProvider(ctx context.Context, options GoogleIA
 			return GoogleIAMServiceAccountKeyProvider{}, fmt.Errorf("supplied endpoint value should not have path set")
 		}
 
+		// pingHost is set to the Host of the validated URL, this will contain a port if one was set
 		pingHost = ep.Host
-
-		if ep.Port() != "" {
-			pingHost := fmt.Sprintf("%s:http", pingHost)
+		// if there is not a port set in the supplied endpoint, then we get the net package to dial on http or https
+		// based on the scheme
+		if ep.Port() == "" {
+			pingHost = fmt.Sprintf("%s:http", ep.Host)
 			if ep.Scheme == "https" {
-				pingHost = fmt.Sprintf("%s:https", pingHost)
+				pingHost = fmt.Sprintf("%s:https", ep.Host)
 			}
 		}
 
@@ -86,7 +91,6 @@ func (p *GoogleIAMServiceAccountKeyProvider) GetCredential(objectReference strin
 	resource := "projects/-/serviceAccounts/" + objectReference
 	request := &iam.CreateServiceAccountKeyRequest{}
 	key, err := p.iamService.Projects.ServiceAccounts.Keys.Create(resource, request).Do()
-	fmt.Printf("%T", err)
 	if err != nil {
 		return Credential{}, fmt.Errorf("failed to create service account key: %w", err)
 	}
