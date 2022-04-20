@@ -10,13 +10,15 @@ type Provider interface {
 }
 
 type Credential struct {
-	Files []struct {
-		Path     string
-		Mode     fs.FileMode
-		Contents []byte
-	}
+	Files    []CredentialFile
 	EnvVars  map[string]string
 	Username *string
 	Password *string
 	Token    *string
+}
+
+type CredentialFile struct {
+	Path     string
+	Mode     fs.FileMode
+	Contents []byte
 }
