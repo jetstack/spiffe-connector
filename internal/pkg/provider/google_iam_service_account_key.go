@@ -35,7 +35,7 @@ func NewGoogleIAMServiceAccountKeyProvider(ctx context.Context, options GoogleIA
 
 		if ep.Port() != "" {
 			pingHost := fmt.Sprintf("%s:http", pingHost)
-			if ep.Scheme == "https://" {
+			if ep.Scheme == "https" {
 				pingHost = fmt.Sprintf("%s:https", pingHost)
 			}
 		}
