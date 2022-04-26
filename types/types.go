@@ -52,12 +52,13 @@ type Credential struct {
 	ObjectReference string `yaml:"object_reference"`
 }
 
-// Config represents the config file that will be loaded from disk, or some other mechanism.
-type Config struct {
-	ACLs []ACL `yaml:"acls"`
+// ConfigFile represents the config file that will be loaded from disk, or some other mechanism.
+type ConfigFile struct {
+	SPIFFE SpiffeConfig `yaml:"spiffe"`
+	ACLs   []ACL        `yaml:"acls"`
 }
 
-func (c *Config) Validate() []error {
+func (c *ConfigFile) Validate() []error {
 	var errors []error
 
 	// Validate principals are not duplicated
@@ -83,4 +84,22 @@ func (c *Config) Validate() []error {
 	}
 
 	return errors
+}
+
+// SpiffeConfig represents the SPIFFE configuration section of spiffe-connector's config file
+type SpiffeConfig struct {
+	SVIDSources SVIDSources `yaml:"svid_sources"`
+}
+
+// SVIDSources determines where spiffe-connector will obtain its own SVID and trust domain information.
+// The SPIFFE Workload API and Static files are supported.
+type SVIDSources struct {
+	WorkloadAPI *struct {
+		SocketPath string `yaml:"socket_path"`
+	} `yaml:"workload_api,omitempty"`
+	Files *struct {
+		TrustDomainCA string `yaml:"trust_domain_ca"`
+		SVIDCert      string `yaml:"svid_cert"`
+		SVIDKey       string `yaml:"svid_key"`
+	} `yaml:"files,omitempty"`
 }

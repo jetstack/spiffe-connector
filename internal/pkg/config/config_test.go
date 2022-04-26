@@ -12,10 +12,10 @@ import (
 	"github.com/jetstack/spiffe-connector/types"
 )
 
-func TestLoadConfigFromFs(t *testing.T) {
+func TestReadAndValidateConfig(t *testing.T) {
 	testCases := map[string]struct {
 		InputFile      string
-		ExpectedConfig *types.Config
+		ExpectedConfig *types.ConfigFile
 		ExpectedError  error
 	}{
 		"valid config with single principal": {
@@ -28,7 +28,7 @@ acls:
   - provider: "aws"
     object_reference: "aws::arn:foo"
 `,
-			ExpectedConfig: &types.Config{
+			ExpectedConfig: &types.ConfigFile{
 				ACLs: []types.ACL{
 					{
 						MatchPrincipal: "spiffe://foo/bar/baz",
@@ -60,7 +60,7 @@ acls:
   - provider: "aws"
     object_reference: "XXX"
 `,
-			ExpectedConfig: &types.Config{
+			ExpectedConfig: &types.ConfigFile{
 				ACLs: []types.ACL{
 					{
 						MatchPrincipal: "spiffe://foo/bar/baz",
@@ -138,7 +138,7 @@ acls:
 				ModTime: time.Now(),
 			}
 
-			config, err := LoadConfigFromFs(testFs, "example.yaml")
+			config, err := ReadConfigFromFS(testFs, "example.yaml")
 
 			if tc.ExpectedError != nil {
 				assert.EqualError(t, err, tc.ExpectedError.Error(), "unexpected error message")

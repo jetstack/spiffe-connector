@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"github.com/jetstack/spiffe-connector/internal/pkg/config"
@@ -11,11 +12,41 @@ import (
 )
 
 func Run(ctx *cli.Context) error {
-	// TODO: Use config
-	_, err := config.LoadConfigFromFs(realFS{}, ctx.String("config-file"))
+	// Load config
+	cfg, err := config.ReadConfigFromFS(realFS{}, ctx.String("config-file"))
 	if err != nil {
 		return cli.Exit(fmt.Sprintf("Couldn't load config file %s (%s)", ctx.String("config-file"), err.Error()), 1)
 	}
+	config.StoreConfig(cfg)
+
+	// Set up X509 SVID Source
+	x509SourceCtx, x509SourceCancel := context.WithCancel(ctx.Context)
+	source, err := config.ConstructSpiffeConnectorSource(x509SourceCtx, x509SourceCancel, &cfg.SPIFFE)
+	if err != nil {
+		cli.Exit(fmt.Sprintf("Couldn't get SPIFFE ID from workload API or files (%s)", err.Error()), 1)
+	}
+	config.StoreSource(source)
+
+	// Start watching the config for reloads
+	config.NewWatcher(ctx.Context, ctx.String("config-file"),
+		func() error {
+			if err := config.ReadAndStoreConfig(realFS{}, ctx.String("config-file")); err != nil {
+				return err
+			}
+			cfg := config.GetCurrentConfig()
+			oldSource := config.GetCurrentSource()
+			newSourceCtx, newSourceCancel := context.WithCancel(ctx.Context)
+			newSource, err := config.ConstructSpiffeConnectorSource(newSourceCtx, newSourceCancel, &cfg.SPIFFE)
+			if err != nil {
+				newSourceCancel()
+				return err
+			}
+			oldSource.Cancel()
+			config.StoreSource(newSource)
+			return nil
+		},
+	)
+
 	var listenerConfig *tls.Config
 	if ctx.Bool("use-self-signed-certs") {
 		cert, err := cryptoutil.SelfSignedServingCert()
