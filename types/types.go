@@ -54,8 +54,8 @@ type Credential struct {
 
 // ConfigFile represents the config file that will be loaded from disk, or some other mechanism.
 type ConfigFile struct {
-	SPIFFE SpiffeConfig `yaml:"spiffe"`
-	ACLs   []ACL        `yaml:"acls"`
+	SPIFFE *SpiffeConfig `yaml:"spiffe"`
+	ACLs   []ACL         `yaml:"acls"`
 }
 
 func (c *ConfigFile) Validate() []error {

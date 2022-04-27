@@ -65,7 +65,7 @@ func GetCurrentConfig() *types.ConfigFile {
 	return currentConfig.Load().(*types.ConfigFile)
 }
 
-func StoreSource(source *SpiffeConnectorSource) {
+func StoreCurrentSource(source *SpiffeConnectorSource) {
 	currentSource.Store(source)
 }
 

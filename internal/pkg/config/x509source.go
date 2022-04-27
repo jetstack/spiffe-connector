@@ -3,6 +3,8 @@ package config
 import (
 	"context"
 	"errors"
+	"fmt"
+	"os"
 	"sync/atomic"
 
 	"github.com/spiffe/go-spiffe/v2/bundle/x509bundle"
@@ -35,7 +37,7 @@ func ConstructSpiffeConnectorSource(ctx context.Context, cancel context.CancelFu
 		cancelFunc: cancel,
 	}
 	if config == nil {
-		return nil, errors.New("no config provided")
+		return nil, errors.New("no SPIFFE config provided")
 	}
 
 	// If Workload API is set, just use that.
@@ -49,14 +51,27 @@ func ConstructSpiffeConnectorSource(ctx context.Context, cancel context.CancelFu
 	}
 
 	// Otherwise, start watching files for SVIDs and Trust bundles.
+	if config.SVIDSources.Files == nil {
+		return nil, errors.New("neither workload API nor files provided in config file")
+	}
+	if _, err := os.Stat(config.SVIDSources.Files.SVIDKey); err != nil {
+		return nil, fmt.Errorf("could not read SVID Key file (%w)", err)
+	}
+
 	source.currentSVID.Store(new(x509svid.SVID))
 	source.currentTrustBundle.Store(new(x509bundle.Bundle))
 
 	// Start watching for SVID updates
 	updateSVID := func() error {
+		if config.SVIDSources.Files == nil {
+			return errors.New("no SVID Sources speficied in config file")
+		}
 		svid, err := x509svid.Load(config.SVIDSources.Files.SVIDCert, config.SVIDSources.Files.SVIDKey)
 		if err != nil {
 			return err
+		}
+		if svid == nil {
+			return errors.New("no SVID provided in config file")
 		}
 		source.currentSVID.Store(svid)
 		return nil
