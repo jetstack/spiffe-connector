@@ -14,11 +14,13 @@ require (
 
 require (
 	cloud.google.com/go/compute v1.5.0 // indirect
+	github.com/aws/aws-sdk-go v1.44.1 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.0 // indirect
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.2.0 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/zeebo/errs v1.2.2 // indirect
