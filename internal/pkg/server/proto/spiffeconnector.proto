@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/jetstack/spiffe-connector/internal/pkg/server/proto;proto";
+
+service SpiffeConnector {
+  rpc GetCredentials(google.protobuf.Empty) returns (GetCredentialsResponse);
+}
+
+message GetCredentialsResponse {
+  repeated Credential Credentials = 1;
+}
+
+message Credential {
+  repeated File Files = 1;
+  map<string, string> EnvVars = 2;
+  optional string Username = 3;
+  optional string Password = 4;
+  optional string Token = 5;
+  optional google.protobuf.Timestamp Expiry = 6;
+}
+
+message File {
+  string Path = 1;
+  uint32 Mode = 2;
+  bytes Contents = 3;
+}
