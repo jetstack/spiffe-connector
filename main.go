@@ -50,7 +50,7 @@ func main() {
 				Usage:       "",
 				EnvVars:     []string{"SPIFFE_CONNECTOR_USE_SELF_SIGNED_CERTS"},
 				Required:    false,
-				Value:       true,
+				Value:       false,
 				DefaultText: "",
 				Destination: nil,
 				HasBeenSet:  false,
