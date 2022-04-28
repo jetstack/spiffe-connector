@@ -101,6 +101,8 @@ func (p *GoogleIAMServiceAccountKeyProvider) GetCredential(objectReference strin
 	}
 
 	return Credential{
+		// NotAfter is not set since service account keys returned by this provider do not expire
+		// NotAfter:
 		Files: []CredentialFile{
 			{
 				Path:     "key.json",
