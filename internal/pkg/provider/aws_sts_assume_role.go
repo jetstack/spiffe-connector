@@ -141,6 +141,7 @@ aws_session_token = %s
 	)
 
 	return Credential{
+		NotAfter: *result.Credentials.Expiration,
 		Files: []CredentialFile{
 			{
 				Path:     "~/.aws/credentials",

@@ -1,7 +1,10 @@
 // Package provider represents existing credentials that you can swap your SPIFFE ID for.
 package provider
 
-import "io/fs"
+import (
+	"io/fs"
+	"time"
+)
 
 type Provider interface {
 	Name() string
@@ -15,6 +18,7 @@ type Credential struct {
 	Username *string
 	Password *string
 	Token    *string
+	NotAfter time.Time
 }
 
 type CredentialFile struct {

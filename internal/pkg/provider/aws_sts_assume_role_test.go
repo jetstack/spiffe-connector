@@ -3,10 +3,13 @@ package provider
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"github.com/maxatome/go-testdeep/td"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -53,7 +56,7 @@ func TestAWSSTSAssumeRoleProvider_GetCredential(t *testing.T) {
 	testCases := map[string]struct {
 		objectReference      string
 		expectedError        error
-		expectedCredential   Credential
+		expectedCredential   td.TestDeep
 		testServer           func(*int) *httptest.Server
 		expectedRequestCount int
 	}{
@@ -84,7 +87,7 @@ func TestAWSSTSAssumeRoleProvider_GetCredential(t *testing.T) {
 				return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 					*count++
 					w.WriteHeader(http.StatusOK)
-					w.Write([]byte(`
+					w.Write([]byte(fmt.Sprintf(`
 <AssumeRoleResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
   <AssumeRoleResult>
     <AssumedRoleUser>
@@ -95,30 +98,35 @@ func TestAWSSTSAssumeRoleProvider_GetCredential(t *testing.T) {
       <AccessKeyId>keyid</AccessKeyId>
       <SecretAccessKey>key</SecretAccessKey>
       <SessionToken>sessiontoken</SessionToken>
-      <Expiration>2022-04-27T16:34:29Z</Expiration>
+      <Expiration>%s</Expiration>
     </Credentials>
   </AssumeRoleResult>
   <ResponseMetadata>
     <RequestId>9a5aaaed-abdc-4eaf-9e48-9ae4da8caba9</RequestId>
   </ResponseMetadata>
 </AssumeRoleResponse>
-`))
+`, time.Now().UTC().Add(time.Hour).Format("2006-01-02T15:04:05Z"))))
 				}))
 			},
 			expectedRequestCount: 1,
-			expectedCredential: Credential{
-				Files: []CredentialFile{
-					{
-						Path: "~/.aws/credentials",
-						Mode: 0644,
-						Contents: []byte(`[default]
+			expectedCredential: td.Struct(
+				Credential{
+					Files: []CredentialFile{
+						{
+							Path: "~/.aws/credentials",
+							Mode: 0644,
+							Contents: []byte(`[default]
 aws_access_key_id = keyid
 aws_secret_access_key = key
 aws_session_token = sessiontoken
 `),
+						},
 					},
 				},
-			},
+				td.StructFields{
+					"NotAfter": td.Between(time.Now().UTC().Add(time.Hour-5*time.Second), time.Now().UTC().Add(time.Hour+5*time.Second)),
+				},
+			),
 		},
 	}
 
@@ -138,7 +146,7 @@ aws_session_token = sessiontoken
 				assert.EqualError(t, err, testCase.expectedError.Error())
 			} else {
 				require.NoError(t, err)
-				assert.Equal(t, testCase.expectedCredential, cred)
+				td.Cmp(t, cred, testCase.expectedCredential)
 				assert.Equal(t, testCase.expectedRequestCount, count, "unexpected number of requests made to test instance")
 			}
 		})
