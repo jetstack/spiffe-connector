@@ -8,7 +8,7 @@ import (
 )
 
 func TestSelfSignedServingCert(t *testing.T) {
-	cert, err := SelfSignedServingCert()
+	cert, err := SelfSignedServingCert("spiffe://dummy.domain/spiffe-connector")
 	assert.NoError(t, err, "SelfSignedServingCert should not error")
 	roots := x509.NewCertPool()
 	x509Cert, err := x509.ParseCertificate(cert.Certificate[0])
