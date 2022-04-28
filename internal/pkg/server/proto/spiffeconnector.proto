@@ -19,7 +19,7 @@ message Credential {
   optional string Username = 3;
   optional string Password = 4;
   optional string Token = 5;
-  optional google.protobuf.Timestamp Expiry = 6;
+  optional google.protobuf.Timestamp NotAfter = 6;
 }
 
 message File {
