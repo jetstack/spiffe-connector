@@ -1,0 +1,221 @@
+project_name: spiffe-connector
+before:
+  hooks:
+    - go mod tidy
+    #- go test -v ./...
+builds:
+  - id: spiffe-connector-server
+    main: ./internal/cmd/server
+    binary: spiffe-connector-server
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - '386'
+      - amd64
+      - arm
+      - arm64
+      - s390x
+    goarm:
+      - '6'
+      - '7'
+  - id: spiffe-connector-sidecar
+    main: ./internal/cmd/sidecar
+    binary: spiffe-connector-sidecar
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+      - s390x
+    goarm:
+      - "6"
+      - "7"
+archives:
+  - format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+dockers:
+  - id: server-amd64
+    goarch: amd64
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Version }}-amd64
+    use: buildx
+    dockerfile: internal/cmd/server/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: server-386
+    goarch: "386"
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Version }}-386
+    use: buildx
+    dockerfile: internal/cmd/server/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/386"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: server-arm64
+    goarch: arm64
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Version }}-arm64
+    use: buildx
+    dockerfile: internal/cmd/server/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: server-armv6
+    goarch: arm
+    goarm: "6"
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Version }}-armv6
+    use: buildx
+    dockerfile: internal/cmd/server/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm/v6"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: server-armv7
+    goarch: arm
+    goarm: "7"
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Version }}-armv7
+    use: buildx
+    dockerfile: internal/cmd/server/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm/v7"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: server-s390x
+    goarch: s390x
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Version }}-s390x
+    use: buildx
+    dockerfile: internal/cmd/server/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/s390x"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: sidecar-amd64
+    goarch: amd64
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-amd64
+    use: buildx
+    dockerfile: internal/cmd/sidecar/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: sidecar-386
+    goarch: "386"
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-386
+    use: buildx
+    dockerfile: internal/cmd/sidecar/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/386"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: sidecar-arm64
+    goarch: arm64
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-arm64
+    use: buildx
+    dockerfile: internal/cmd/sidecar/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: sidecar-armv6
+    goarch: arm
+    goarm: "6"
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv6
+    use: buildx
+    dockerfile: internal/cmd/sidecar/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm/v6"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: sidecar-armv7
+    goarch: arm
+    goarm: "7"
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv7
+    use: buildx
+    dockerfile: internal/cmd/sidecar/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/arm/v7"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: sidecar-s390x
+    goarch: s390x
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-s390x
+    use: buildx
+    dockerfile: internal/cmd/sidecar/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/s390x"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+docker_manifests:
+  - name_template: jetstack/spiffe-connector-server:{{ .Version }}
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Version }}-amd64
+      - jetstack/spiffe-connector-server:{{ .Version }}-386
+      - jetstack/spiffe-connector-server:{{ .Version }}-arm64
+      - jetstack/spiffe-connector-server:{{ .Version }}-armv6
+      - jetstack/spiffe-connector-server:{{ .Version }}-armv7
+      - jetstack/spiffe-connector-server:{{ .Version }}-s390x
+  - name_template: jetstack/spiffe-connector-sidecar:{{ .Version }}
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-amd64
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-386
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-arm64
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv6
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv7
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-s390x
+checksum:
+  name_template: 'checksums.txt'
+#sboms:
+#  - artifacts: archive
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
