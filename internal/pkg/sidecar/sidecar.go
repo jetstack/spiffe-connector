@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -99,7 +100,16 @@ func (c *CredentialManager) applyCredentials() error {
 			if f == nil {
 				continue
 			}
-			if err := os.WriteFile(f.Path, f.Contents, os.FileMode(f.Mode)); err != nil {
+			filePath := f.Path
+			if strings.HasPrefix(f.Path, "~/") {
+				home, err := os.UserHomeDir()
+				if err != nil {
+					return fmt.Errorf("received credential contains path %s but could not determine user home directory: %w", f.Path, err)
+				}
+				// maybe consider what to do with non-unixy hosts
+				filePath = strings.Replace(filePath, "~/", home+"/", 1)
+			}
+			if err := os.WriteFile(filePath, f.Contents, os.FileMode(f.Mode)); err != nil {
 				return err
 			}
 		}
