@@ -11,6 +11,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/jetstack/spiffe-connector/internal/pkg/server/proto"
 )
 
 func TestGoogleIAMServiceAccountKeyProvider_Name(t *testing.T) {
@@ -67,7 +69,7 @@ func TestGoogleIAMServiceAccountKeyProvider_GetCredential(t *testing.T) {
 	testCases := map[string]struct {
 		objectReference      string
 		expectedError        error
-		expectedCredential   Credential
+		expectedCredential   *proto.Credential
 		testServer           func(*int) *httptest.Server
 		expectedRequestCount int
 	}{
@@ -117,8 +119,8 @@ func TestGoogleIAMServiceAccountKeyProvider_GetCredential(t *testing.T) {
 				}))
 			},
 			expectedRequestCount: 1,
-			expectedCredential: Credential{
-				Files: []CredentialFile{
+			expectedCredential: &proto.Credential{
+				Files: []*proto.File{
 					{
 						Path:     "key.json",
 						Mode:     0644,

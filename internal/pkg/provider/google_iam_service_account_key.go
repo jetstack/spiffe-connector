@@ -10,6 +10,8 @@ import (
 
 	"google.golang.org/api/iam/v1"
 	"google.golang.org/api/option"
+
+	"github.com/jetstack/spiffe-connector/internal/pkg/server/proto"
 )
 
 func NewGoogleIAMServiceAccountKeyProvider(ctx context.Context, options GoogleIAMServiceAccountKeyProviderOptions) (GoogleIAMServiceAccountKeyProvider, error) {
@@ -86,24 +88,24 @@ func (p *GoogleIAMServiceAccountKeyProvider) Ping() error {
 	return nil
 }
 
-func (p *GoogleIAMServiceAccountKeyProvider) GetCredential(objectReference string) (Credential, error) {
+func (p *GoogleIAMServiceAccountKeyProvider) GetCredential(objectReference string) (*proto.Credential, error) {
 	// - for the project will infer it from the objectReference
 	resource := "projects/-/serviceAccounts/" + objectReference
 	request := &iam.CreateServiceAccountKeyRequest{}
 	key, err := p.iamService.Projects.ServiceAccounts.Keys.Create(resource, request).Do()
 	if err != nil {
-		return Credential{}, fmt.Errorf("failed to create service account key: %w", err)
+		return &proto.Credential{}, fmt.Errorf("failed to create service account key: %w", err)
 	}
 
 	jsonKeyFile, err := base64.StdEncoding.DecodeString(key.PrivateKeyData)
 	if err != nil {
-		return Credential{}, fmt.Errorf("failed to create service account key file JSON: %w", err)
+		return &proto.Credential{}, fmt.Errorf("failed to create service account key file JSON: %w", err)
 	}
 
-	return Credential{
+	return &proto.Credential{
 		// NotAfter is not set since service account keys returned by this provider do not expire
 		// NotAfter:
-		Files: []CredentialFile{
+		Files: []*proto.File{
 			{
 				Path:     "key.json",
 				Mode:     0644,

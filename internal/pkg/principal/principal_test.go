@@ -68,13 +68,13 @@ func TestMatchingACLs(t *testing.T) {
 
 	for testName, tc := range testCases {
 		t.Run(testName, func(t *testing.T) {
-			found, result, err := MatchingACL(tc.ACLs, tc.Principal)
+			result, err := MatchingACL(tc.ACLs, tc.Principal)
 			if tc.ExpectedError != nil {
-				require.False(t, found, "found should be false in error case")
+				require.False(t, result == nil, "result should be nil in error case")
 				assert.EqualError(t, err, tc.ExpectedError.Error(), "unexpected error value")
 			} else {
 				require.NoError(t, err)
-				if !found {
+				if result == nil {
 					t.Fatal("expected to find matching ACL, did not")
 				}
 				assert.Equal(t, tc.MatchingACL, result, "unexpected result")

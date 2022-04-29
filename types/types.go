@@ -96,6 +96,9 @@ type SpiffeConfig struct {
 type SVIDSources struct {
 	WorkloadAPI *WorkloadAPI `yaml:"workload_api,omitempty"`
 	Files       *Files       `yaml:"files,omitempty"`
+
+	// InMemory is only used in testing
+	InMemory *InMemory
 }
 
 type WorkloadAPI struct {
@@ -106,4 +109,11 @@ type Files struct {
 	TrustDomainCA string `yaml:"trust_domain_ca"`
 	SVIDCert      string `yaml:"svid_cert"`
 	SVIDKey       string `yaml:"svid_key"`
+}
+
+// InMemory is only used in testing
+type InMemory struct {
+	TrustDomainCA []byte
+	SVIDCert      []byte
+	SVIDKey       []byte
 }

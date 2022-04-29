@@ -12,6 +12,9 @@ import (
 	"github.com/maxatome/go-testdeep/td"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"github.com/jetstack/spiffe-connector/internal/pkg/server/proto"
 )
 
 func TestAWSSTSAssumeRoleProvider_Name(t *testing.T) {
@@ -110,8 +113,8 @@ func TestAWSSTSAssumeRoleProvider_GetCredential(t *testing.T) {
 			},
 			expectedRequestCount: 1,
 			expectedCredential: td.Struct(
-				Credential{
-					Files: []CredentialFile{
+				&proto.Credential{
+					Files: []*proto.File{
 						{
 							Path: "~/.aws/credentials",
 							Mode: 0644,
@@ -124,7 +127,11 @@ aws_session_token = sessiontoken
 					},
 				},
 				td.StructFields{
-					"NotAfter": td.Between(time.Now().UTC().Add(time.Hour-5*time.Second), time.Now().UTC().Add(time.Hour+5*time.Second)),
+					"NotAfter": td.Code(func(tspb *timestamppb.Timestamp) bool {
+						t := tspb.AsTime()
+						return t.Before(time.Now().UTC().Add(time.Hour+5*time.Second)) &&
+							t.After(time.Now().UTC().Add(time.Hour-5*time.Second))
+					}),
 				},
 			),
 		},
