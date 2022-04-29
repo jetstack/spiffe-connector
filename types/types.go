@@ -52,6 +52,10 @@ type Credential struct {
 	ObjectReference string `yaml:"object_reference"`
 }
 
+func (c *Credential) Key() string {
+	return fmt.Sprintf("%s/%s", c.Provider, c.ObjectReference)
+}
+
 // ConfigFile represents the config file that will be loaded from disk, or some other mechanism.
 type ConfigFile struct {
 	SPIFFE *SpiffeConfig `yaml:"spiffe"`

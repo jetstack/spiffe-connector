@@ -10,6 +10,7 @@ import (
 
 	"google.golang.org/api/iam/v1"
 	"google.golang.org/api/option"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/jetstack/spiffe-connector/internal/pkg/server/proto"
 )
@@ -102,9 +103,13 @@ func (p *GoogleIAMServiceAccountKeyProvider) GetCredential(objectReference strin
 		return &proto.Credential{}, fmt.Errorf("failed to create service account key file JSON: %w", err)
 	}
 
+	notAfter, err := time.Parse(time.RFC3339, key.ValidBeforeTime)
+	if err != nil {
+		return &proto.Credential{}, fmt.Errorf("failed to parse credential valid before time: %w", err)
+	}
+
 	return &proto.Credential{
-		// NotAfter is not set since service account keys returned by this provider do not expire
-		// NotAfter:
+		NotAfter: timestamppb.New(notAfter),
 		Files: []*proto.File{
 			{
 				Path:     "key.json",

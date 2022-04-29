@@ -179,6 +179,7 @@ func TestServer_GetCredentials(t *testing.T) {
 			ExpectedCredentials: []td.TestDeep{
 				td.Slice([]*proto.Credential{}, td.ArrayEntries{
 					0: &proto.Credential{
+						NotAfter: timestamppb.New(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)),
 						Files: []*proto.File{
 							{
 								Path:     "key.json",
@@ -202,10 +203,10 @@ aws_session_token = sessiontoken-1
 							},
 						},
 						td.StructFields{
-							"NotAfter": td.Code(func(tspb *timestamppb.Timestamp) bool {
+							"NotAfter": td.Code(func(tspb *timestamppb.Timestamp) (bool, string) {
 								t := tspb.AsTime()
 								return t.Before(time.Now().UTC().Add(time.Hour+5*time.Second)) &&
-									t.After(time.Now().UTC().Add(time.Hour-5*time.Second))
+									t.After(time.Now().UTC().Add(time.Hour-5*time.Second)), fmt.Sprintf("timestamp %v was not in expected range", t)
 							}),
 						},
 					),
@@ -235,6 +236,7 @@ aws_session_token = sessiontoken-1
 			ExpectedCredentials: []td.TestDeep{
 				td.Slice([]*proto.Credential{}, td.ArrayEntries{
 					0: &proto.Credential{
+						NotAfter: timestamppb.New(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)),
 						Files: []*proto.File{
 							{
 								Path:     "key.json",
@@ -258,16 +260,19 @@ aws_session_token = sessiontoken-1
 							},
 						},
 						td.StructFields{
-							"NotAfter": td.Code(func(tspb *timestamppb.Timestamp) bool {
+							"NotAfter": td.Code(func(tspb *timestamppb.Timestamp) (bool, string) {
 								t := tspb.AsTime()
-								return t.Before(time.Now().UTC().Add(2*time.Second)) &&
-									t.After(time.Now().UTC().Add(-2*time.Second))
+								rangeStart := time.Now().UTC().Add(2 * time.Second)
+								rangeEnd := time.Now().UTC().Add(-2 * time.Second)
+								return t.Before(rangeStart) &&
+									t.After(rangeEnd), fmt.Sprintf("timestamp %v was not in expected range %v to %v", t, rangeStart, rangeEnd)
 							}),
 						},
 					),
 				}),
 				td.Slice([]*proto.Credential{}, td.ArrayEntries{
 					0: &proto.Credential{
+						NotAfter: timestamppb.New(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)),
 						Files: []*proto.File{
 							{
 								Path:     "key.json",
@@ -291,10 +296,12 @@ aws_session_token = sessiontoken-2
 							},
 						},
 						td.StructFields{
-							"NotAfter": td.Code(func(tspb *timestamppb.Timestamp) bool {
+							"NotAfter": td.Code(func(tspb *timestamppb.Timestamp) (bool, string) {
 								t := tspb.AsTime()
-								return t.Before(time.Now().UTC().Add(time.Hour+2*time.Second)) &&
-									t.After(time.Now().UTC().Add(time.Hour-2*time.Second))
+								rangeStart := time.Now().UTC().Add(time.Hour + 2*time.Second)
+								rangeEnd := time.Now().UTC().Add(time.Hour - 2*time.Second)
+								return t.Before(rangeStart) &&
+									t.After(rangeEnd), fmt.Sprintf("timestamp %v was not in expected range %v to %v", t, rangeStart, rangeEnd)
 							}),
 						},
 					),
