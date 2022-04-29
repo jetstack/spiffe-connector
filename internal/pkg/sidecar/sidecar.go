@@ -43,7 +43,7 @@ func (c *CredentialManager) Run(ctx context.Context) error {
 		ctx,
 		c.ServerAddress,
 		grpc.WithTransportCredentials(
-			grpccredentials.MTLSClientCredentials(config.DynamicSource{}, config.DynamicSource{}, authorizer),
+			grpccredentials.MTLSClientCredentials(config.CurrentSource, config.CurrentSource, authorizer),
 		),
 	)
 	if err != nil {
@@ -126,7 +126,7 @@ func (c *CredentialManager) scheduleNext() {
 		}
 	}
 	go func(c *CredentialManager, at time.Time) {
-		time.Sleep(time.Until(at))
+		time.Sleep(time.Until(at) / 3 * 2)
 		c.refresh <- struct{}{}
 	}(c, next)
 }
