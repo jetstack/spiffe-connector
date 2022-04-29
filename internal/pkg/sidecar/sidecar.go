@@ -31,6 +31,7 @@ type CredentialManager struct {
 
 func (c *CredentialManager) Run(ctx context.Context) error {
 	var authorizer tlsconfig.Authorizer
+	c.refresh = make(chan struct{}, 60)
 	if len(c.ServerSPIFFEID) > 0 {
 		id, err := spiffeid.FromString(c.ServerSPIFFEID)
 		if err != nil {
@@ -60,6 +61,7 @@ func (c *CredentialManager) Run(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
+			close(c.refresh)
 			return ctx.Err()
 		case <-c.refresh:
 			err := c.refreshCredentials(ctx)
