@@ -94,12 +94,16 @@ type SpiffeConfig struct {
 // SVIDSources determines where spiffe-connector will obtain its own SVID and trust domain information.
 // The SPIFFE Workload API and Static files are supported.
 type SVIDSources struct {
-	WorkloadAPI *struct {
-		SocketPath string `yaml:"socket_path"`
-	} `yaml:"workload_api,omitempty"`
-	Files *struct {
-		TrustDomainCA string `yaml:"trust_domain_ca"`
-		SVIDCert      string `yaml:"svid_cert"`
-		SVIDKey       string `yaml:"svid_key"`
-	} `yaml:"files,omitempty"`
+	WorkloadAPI *WorkloadAPI `yaml:"workload_api,omitempty"`
+	Files       *Files       `yaml:"files,omitempty"`
+}
+
+type WorkloadAPI struct {
+	SocketPath string `yaml:"socket_path"`
+}
+
+type Files struct {
+	TrustDomainCA string `yaml:"trust_domain_ca"`
+	SVIDCert      string `yaml:"svid_cert"`
+	SVIDKey       string `yaml:"svid_key"`
 }
