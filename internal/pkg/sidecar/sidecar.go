@@ -133,6 +133,9 @@ func (c *CredentialManager) scheduleNext() {
 		if cred == nil {
 			continue
 		}
+		if cred.NotAfter == nil {
+			continue
+		}
 		if cred.NotAfter.AsTime().Before(next) {
 			next = cred.NotAfter.AsTime()
 		}
