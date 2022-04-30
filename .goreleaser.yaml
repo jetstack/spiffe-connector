@@ -17,6 +17,8 @@ builds:
       - arm
       - arm64
       - s390x
+      - riscv64
+      - ppc64le
     goarm:
       - '6'
       - '7'
@@ -33,6 +35,8 @@ builds:
       - arm
       - arm64
       - s390x
+      - riscv64
+      - ppc64le
     goarm:
       - "6"
       - "7"
@@ -118,6 +122,30 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: server-riscv64
+    goarch: riscv64
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Version }}-riscv64
+    use: buildx
+    dockerfile: internal/cmd/server/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/riscv64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: server-ppc64le
+    goarch: ppc64le
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Version }}-ppc64le
+    use: buildx
+    dockerfile: internal/cmd/server/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/ppc64le"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
   - id: sidecar-amd64
     goarch: amd64
     image_templates:
@@ -192,6 +220,30 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: sidecar-riscv64
+    goarch: riscv64
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-riscv64
+    use: buildx
+    dockerfile: internal/cmd/sidecar/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/riscv64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+  - id: sidecar-ppc64le
+    goarch: ppc64le
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-ppc64le
+    use: buildx
+    dockerfile: internal/cmd/sidecar/Dockerfile
+    build_flag_templates:
+      - "--platform=linux/ppc64le"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
 docker_manifests:
   - name_template: jetstack/spiffe-connector-server:{{ .Version }}
     image_templates:
@@ -201,6 +253,8 @@ docker_manifests:
       - jetstack/spiffe-connector-server:{{ .Version }}-armv6
       - jetstack/spiffe-connector-server:{{ .Version }}-armv7
       - jetstack/spiffe-connector-server:{{ .Version }}-s390x
+      - jetstack/spiffe-connector-server:{{ .Version }}-riscv64
+      - jetstack/spiffe-connector-server:{{ .Version }}-ppc64le
   - name_template: jetstack/spiffe-connector-sidecar:{{ .Version }}
     image_templates:
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-amd64
@@ -209,6 +263,8 @@ docker_manifests:
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv6
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv7
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-s390x
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-riscv64
+      - jetstack/spiffe-connector-sidecar:{{ .Version }}-ppc64le
 checksum:
   name_template: 'checksums.txt'
 #sboms:
