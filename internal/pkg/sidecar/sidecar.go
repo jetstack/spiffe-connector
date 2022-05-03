@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -79,21 +80,23 @@ func (c *CredentialManager) Run(ctx context.Context) error {
 }
 
 func (c *CredentialManager) refreshCredentials(ctx context.Context) error {
+	log.Println("refreshing credentials")
 	connCtx, cancel := context.WithTimeout(ctx, time.Minute)
 	creds, err := c.client.GetCredentials(connCtx, &emptypb.Empty{})
 	cancel()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get credentials: %w", err)
 	}
 	c.currentCredentials.Store(creds.GetCredentials())
 	if err := c.applyCredentials(); err != nil {
-		return err
+		return fmt.Errorf("failed to apply credentials: %w", err)
 	}
 	return nil
 }
 
 func (c *CredentialManager) applyCredentials() error {
 	creds := c.currentCredentials.Load().([]*proto.Credential)
+	log.Printf("applying %d credentials", len(creds))
 	for _, cred := range creds {
 		if cred == nil { // should never happen
 			continue
@@ -108,9 +111,18 @@ func (c *CredentialManager) applyCredentials() error {
 				if err != nil {
 					return fmt.Errorf("received credential contains path %s but could not determine user home directory: %w", f.Path, err)
 				}
-				// maybe consider what to do with non-unixy hosts
-				filePath = strings.Replace(filePath, "~/", home+"/", 1)
+				// TODO: maybe consider what to do with non-unixy hosts
+				if home == "/" {
+					filePath = strings.TrimPrefix(filePath, "~")
+				} else {
+					filePath = strings.Replace(filePath, "~", home, 1)
+				}
 			}
+
+			if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+				return fmt.Errorf("failed to make dir for credential: %w", err)
+			}
+			log.Printf("writing credential to: %s", filePath)
 			if err := os.WriteFile(filePath, f.Contents, os.FileMode(f.Mode)); err != nil {
 				return err
 			}

@@ -1,0 +1,9 @@
+http:
+  port: "3000"
+
+aws:
+  bucketName: jetstack-hackathon
+  region: eu-west-1
+
+gcp:
+  bucketName: jetstack-workload-foo

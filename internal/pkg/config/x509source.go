@@ -87,7 +87,7 @@ func ConstructSpiffeConnectorSource(ctx context.Context, cancel context.CancelFu
 		}
 		svid, err := x509svid.Load(config.SVIDSources.Files.SVIDCert, config.SVIDSources.Files.SVIDKey)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to load SVID: %w", err)
 		}
 		if svid == nil {
 			return errors.New("no SVID provided in config file")
@@ -106,7 +106,7 @@ func ConstructSpiffeConnectorSource(ctx context.Context, cancel context.CancelFu
 	updateTrustBundle := func() error {
 		bundle, err := x509bundle.Load(spiffeid.RequireTrustDomainFromString("todo"), config.SVIDSources.Files.TrustDomainCA)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to load trust bundle: %w", err)
 		}
 		source.currentTrustBundle.Store(bundle)
 		return nil
@@ -115,7 +115,7 @@ func ConstructSpiffeConnectorSource(ctx context.Context, cancel context.CancelFu
 		return nil, err
 	}
 	if _, err := NewWatcher(ctx, config.SVIDSources.Files.TrustDomainCA, updateTrustBundle); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to start new config watcher: %w", err)
 	}
 	return source, nil
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/jetstack/spiffe-connector/internal/pkg/config"
+	"github.com/jetstack/spiffe-connector/internal/pkg/provider"
 	"github.com/jetstack/spiffe-connector/internal/pkg/server"
 )
 
@@ -50,7 +51,23 @@ func Run(ctx *cli.Context) error {
 		return cli.Exit(fmt.Sprintf("Couldn't set up config reloader (%s)", err.Error()), 1)
 	}
 
-	s := &server.Server{}
+	googleProvider, err := provider.NewGoogleIAMServiceAccountKeyProvider(context.Background(), provider.GoogleIAMServiceAccountKeyProviderOptions{})
+	if err != nil {
+		return cli.Exit(fmt.Sprintf("failed to set up Google IAM Provider %s", err), 1)
+	}
+	awsProvider, err := provider.NewAWSSTSAssumeRoleProvider(context.Background(), provider.AWSSTSAssumeRoleProviderOptions{})
+	if err != nil {
+		return cli.Exit(fmt.Sprintf("failed to set up AWS STS Provider %s", err), 1)
+	}
+
+	s := &server.Server{
+		ACLs: cfg.ACLs,
+		Providers: map[string]provider.Provider{
+			"AWSSTSAssumeRoleProvider":           &awsProvider,
+			"GoogleIAMServiceAccountKeyProvider": &googleProvider,
+		},
+	}
+
 	s.Start(ctx.Context)
 	return nil
 }

@@ -1,0 +1,162 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: spiffe-connector
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spiffe-connector
+  namespace: spiffe-connector
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spiffe-connector
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: spiffe-connector
+  namespace: spiffe-connector
+rules:
+- apiGroups:
+  - cert-manager.io
+  resources:
+  - certificaterequests
+  verbs:
+  - create
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: spiffe-connector
+  namespace: spiffe-connector
+roleRef:
+  kind: Role
+  name: spiffe-connector
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: spiffe-connector
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spiffe-connector
+  namespace: spiffe-connector
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9090
+      targetPort: 9090
+      protocol: TCP
+      name: http
+  selector:
+    app: spiffe-connector
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gcp-credentials
+  namespace: spiffe-connector
+stringData:
+  application_default_credentials.json: |
+$GOOGLE_CREDENTIALS
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aws-credentials
+  namespace: spiffe-connector
+stringData:
+  credentials: |
+$AWS_CREDENTIALS
+  config: |
+    [default]
+    region = eu-west-1
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server-config
+  namespace: spiffe-connector
+data:
+  config.yaml: |
+    acls:
+    - match_principal: "spiffe://hackathon.jetstack.net/ns/example-app/sa/example-app"
+      credentials:
+      - provider: "GoogleIAMServiceAccountKeyProvider"
+        object_reference: "hackathon-admin@jetstack-charlie.iam.gserviceaccount.com"
+      - provider: "AWSSTSAssumeRoleProvider"
+        object_reference: "arn:aws:iam::954226078878:role/jetstack-workload-foo-bucket-access"
+    spiffe:
+      svid_sources: 
+        files:
+          trust_domain_ca: /var/run/secrets/spiffe.io/ca.crt
+          svid_cert: /var/run/secrets/spiffe.io/tls.crt
+          svid_key: /var/run/secrets/spiffe.io/tls.key
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spiffe-connector
+  namespace: spiffe-connector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spiffe-connector
+  template:
+    metadata:
+      labels:
+        app: spiffe-connector
+    spec:
+      serviceAccountName: spiffe-connector
+      containers:
+      - name: spiffe-connector
+        image: jetstack/spiffe-connector-server:$VERSION-$ARCH
+        args:
+          - --config-file=/etc/config/config.yaml
+        ports:
+        - containerPort: 9090
+        env:
+          - name: AWS_SHARED_CREDENTIALS_FILE
+            value: /etc/config/aws/credentials
+          - name: AWS_CONFIG_FILE
+            value: /etc/config/aws/config
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/config/google/application_default_credentials.json
+        volumeMounts:
+          - mountPath: /etc/config
+            name: config
+            readOnly: true
+          - mountPath: /var/run/secrets/spiffe.io
+            name: spiffe
+            readOnly: true
+          - mountPath: /etc/config/aws
+            name: aws-credentials
+            readOnly: true
+          - mountPath: /etc/config/google
+            name: gcp-credentials
+            readOnly: true
+      volumes:
+      - name: spiffe
+        csi:
+          driver: spiffe.csi.cert-manager.io
+          readOnly: true
+          volumeAttributes:
+            spiffe.csi.cert-manager.io/fs-group: "65532"
+      - name: config
+        configMap:
+          name: server-config
+          items:
+            - key: config.yaml
+              path: config.yaml
+      - name: gcp-credentials
+        secret:
+          secretName: gcp-credentials
+      - name: aws-credentials
+        secret:
+          secretName: aws-credentials

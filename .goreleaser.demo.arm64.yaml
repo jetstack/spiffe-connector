@@ -1,0 +1,63 @@
+project_name: spiffe-connector
+before:
+  hooks:
+    - go mod tidy
+    - go test -v ./...
+builds:
+  - id: spiffe-connector-server
+    main: ./internal/cmd/server
+    binary: spiffe-connector-server
+    env:
+      - CGO_ENABLED=0
+    targets:
+      - linux_arm64
+  - id: spiffe-connector-sidecar
+    main: ./internal/cmd/sidecar
+    binary: spiffe-connector-sidecar
+    env:
+      - CGO_ENABLED=0
+    targets:
+      - linux_arm64
+  - id: spiffe-connector-example
+    dir: ./example/
+    binary: spiffe-connector-example
+    env:
+      - CGO_ENABLED=0
+    targets:
+      - linux_arm64
+archives:
+  - format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+dockers:
+  - id: server-arm64
+    goarch: arm64
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Env.VERSION }}-arm64
+    use: buildx
+    dockerfile: internal/cmd/server/Dockerfile
+  - id: sidecar-arm64
+    goarch: arm64
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Env.VERSION }}-arm64
+    use: buildx
+    dockerfile: internal/cmd/sidecar/Dockerfile
+  - id: example-arm64
+    goarch: arm64
+    image_templates:
+      - jetstack/spiffe-connector-example:{{ .Env.VERSION }}-arm64
+    use: buildx
+    dockerfile: example/Dockerfile
+docker_manifests:
+  - name_template: jetstack/spiffe-connector-server:{{ .Env.VERSION }}
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Env.VERSION }}-arm64
+  - name_template: jetstack/spiffe-connector-sidecar:{{ .Env.VERSION }}
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Env.VERSION }}-arm64
+  - name_template: jetstack/spiffe-connector-example:{{ .Env.VERSION }}
+    image_templates:
+      - jetstack/spiffe-connector-example:{{ .Env.VERSION }}-arm64

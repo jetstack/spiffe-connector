@@ -1,4 +1,4 @@
-FROM scratch
+FROM gcr.io/distroless/static
 COPY spiffe-connector-sidecar /spiffe-connector-sidecar
-USER 65534:65534
-ENTRYPOINT ["/spiffe-connector-server"]
+USER 65532:65532 # nonroot
+ENTRYPOINT ["/spiffe-connector-sidecar"]
