@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/maxatome/go-testdeep/td"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -25,7 +26,8 @@ func TestAWSSTSAssumeRoleProvider_Name(t *testing.T) {
 
 	// create a new provider backed by our test server
 	p, err := NewAWSSTSAssumeRoleProvider(context.Background(), AWSSTSAssumeRoleProviderOptions{
-		Endpoint: testIAMServer.URL,
+		Endpoint:            testIAMServer.URL,
+		CredentialsOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
 	})
 	require.NoError(t, err)
 
@@ -40,7 +42,8 @@ func TestAWSSTSAssumeRoleProvider_Ping(t *testing.T) {
 
 	// create a new provider backed by our test server
 	p, err := NewAWSSTSAssumeRoleProvider(context.Background(), AWSSTSAssumeRoleProviderOptions{
-		Endpoint: testIAMServer.URL,
+		Endpoint:            testIAMServer.URL,
+		CredentialsOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
 	})
 	require.NoError(t, err)
 
@@ -143,9 +146,11 @@ aws_session_token = sessiontoken
 
 		// create a new provider backed by our test server
 		p, err := NewAWSSTSAssumeRoleProvider(context.Background(), AWSSTSAssumeRoleProviderOptions{
-			Endpoint: testServer.URL,
+			Endpoint:            testServer.URL,
+			CredentialsOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
 		})
 		require.NoError(t, err)
+		println(p.stsService.Endpoint)
 
 		t.Run(testName, func(t *testing.T) {
 			cred, err := p.GetCredential(testCase.objectReference)

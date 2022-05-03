@@ -12,11 +12,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/maxatome/go-testdeep/td"
 	"github.com/spiffe/go-spiffe/v2/spiffegrpc/grpccredentials"
 	"github.com/spiffe/go-spiffe/v2/spiffetls/tlsconfig"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -27,6 +30,15 @@ import (
 	"github.com/jetstack/spiffe-connector/internal/pkg/server/proto"
 	"github.com/jetstack/spiffe-connector/types"
 )
+
+type testToken struct{}
+
+func (t testToken) Token() (*oauth2.Token, error) {
+	return &oauth2.Token{
+		AccessToken: "test",
+		TokenType:   "Bearer",
+	}, nil
+}
 
 func TestServer_GetCredentials(t *testing.T) {
 	testCtx, testCtxCancel := context.WithCancel(context.Background())
@@ -316,13 +328,19 @@ aws_session_token = sessiontoken-2
 			googleTestServer := makeGoogleTestServer(t, &googleInvocations)
 			googleProvider, err := provider.NewGoogleIAMServiceAccountKeyProvider(context.Background(), provider.GoogleIAMServiceAccountKeyProviderOptions{
 				Endpoint: googleTestServer.URL,
+				CredentialsOverride: &google.Credentials{
+					ProjectID:   "test",
+					TokenSource: testToken{},
+					JSON:        []byte(`{}`),
+				},
 			})
 			require.NoError(t, err)
 
 			var awsInvocations int
 			awsTestServer := makeAWSTestServer(t, &awsInvocations, testCase.AWSCredentialLifetimes)
 			awsProvider, err := provider.NewAWSSTSAssumeRoleProvider(context.Background(), provider.AWSSTSAssumeRoleProviderOptions{
-				Endpoint: awsTestServer.URL,
+				Endpoint:            awsTestServer.URL,
+				CredentialsOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
 			})
 			require.NoError(t, err)
 

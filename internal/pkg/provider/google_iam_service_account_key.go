@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"time"
 
+	"golang.org/x/oauth2/google"
 	"google.golang.org/api/iam/v1"
 	"google.golang.org/api/option"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -51,6 +52,10 @@ func NewGoogleIAMServiceAccountKeyProvider(ctx context.Context, options GoogleIA
 		options.ClientOptions = append(options.ClientOptions, option.WithEndpoint(options.Endpoint))
 	}
 
+	if options.CredentialsOverride != nil {
+		options.ClientOptions = append(options.ClientOptions, option.WithCredentials(options.CredentialsOverride))
+	}
+
 	service, err := iam.NewService(ctx, options.ClientOptions...)
 	if err != nil {
 		return GoogleIAMServiceAccountKeyProvider{}, fmt.Errorf("failed to create IAM service: %w", err)
@@ -67,6 +72,8 @@ type GoogleIAMServiceAccountKeyProviderOptions struct {
 	Endpoint string
 	// ClientOptions are GCP service client options which are used to initialize the nested GCP IAM service client
 	ClientOptions []option.ClientOption
+	// CredentialsOverride will configure the Google Cloud SDK with explicit credentials if set
+	CredentialsOverride *google.Credentials
 }
 
 type GoogleIAMServiceAccountKeyProvider struct {

@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -27,6 +28,9 @@ type AWSSTSAssumeRoleProviderOptions struct {
 	// Duration is how long credentials will be valid for, recommended max: 1hr. Durations greater than 1hr might be
 	// blocked by organisation settings.
 	Duration int64
+
+	// CredentialsOverride will use explicit credentials if set, rather than letting the AWS SDK discover them
+	CredentialsOverride *credentials.Credentials
 }
 
 // AWSSTSAssumeRoleProvider is a provider used to get short lived credentials from AWS STS
@@ -75,6 +79,9 @@ func NewAWSSTSAssumeRoleProvider(ctx context.Context, options AWSSTSAssumeRolePr
 
 		config.Endpoint = &options.Endpoint
 		config.Region = &options.Region
+	}
+	if options.CredentialsOverride != nil {
+		config.Credentials = options.CredentialsOverride
 	}
 
 	sess, err := session.NewSession(&config)

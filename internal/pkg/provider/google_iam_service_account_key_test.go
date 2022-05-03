@@ -12,10 +12,21 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/jetstack/spiffe-connector/internal/pkg/server/proto"
 )
+
+type testToken struct{}
+
+func (t testToken) Token() (*oauth2.Token, error) {
+	return &oauth2.Token{
+		AccessToken: "test",
+		TokenType:   "Bearer",
+	}, nil
+}
 
 func TestGoogleIAMServiceAccountKeyProvider_Name(t *testing.T) {
 	// create a new test server to use in configuration, it will not be used in this test
@@ -26,6 +37,11 @@ func TestGoogleIAMServiceAccountKeyProvider_Name(t *testing.T) {
 	// create a new provider backed by our test server
 	p, err := NewGoogleIAMServiceAccountKeyProvider(context.Background(), GoogleIAMServiceAccountKeyProviderOptions{
 		Endpoint: testIAMServer.URL,
+		CredentialsOverride: &google.Credentials{
+			ProjectID:   "test",
+			TokenSource: testToken{},
+			JSON:        []byte(`{}`),
+		},
 	})
 	require.NoError(t, err)
 
@@ -41,6 +57,11 @@ func TestGoogleIAMServiceAccountKeyProvider_Ping(t *testing.T) {
 	// create a new provider backed by our test server
 	p, err := NewGoogleIAMServiceAccountKeyProvider(context.Background(), GoogleIAMServiceAccountKeyProviderOptions{
 		Endpoint: testIAMServer.URL,
+		CredentialsOverride: &google.Credentials{
+			ProjectID:   "test",
+			TokenSource: testToken{},
+			JSON:        []byte(`{}`),
+		},
 	})
 	require.NoError(t, err)
 
@@ -141,6 +162,11 @@ func TestGoogleIAMServiceAccountKeyProvider_GetCredential(t *testing.T) {
 		// create a new provider backed by our test server
 		p, err := NewGoogleIAMServiceAccountKeyProvider(context.Background(), GoogleIAMServiceAccountKeyProviderOptions{
 			Endpoint: testServer.URL,
+			CredentialsOverride: &google.Credentials{
+				ProjectID:   "test",
+				TokenSource: testToken{},
+				JSON:        []byte(`{}`),
+			},
 		})
 		require.NoError(t, err)
 

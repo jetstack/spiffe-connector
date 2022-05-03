@@ -2,7 +2,7 @@ project_name: spiffe-connector
 before:
   hooks:
     - go mod tidy
-    #- go test -v ./...
+    - go test -v ./...
 builds:
   - id: spiffe-connector-server
     main: ./internal/cmd/server
