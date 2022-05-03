@@ -12,6 +12,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/maxatome/go-testdeep/td"
 	"github.com/spiffe/go-spiffe/v2/spiffegrpc/grpccredentials"
 	"github.com/spiffe/go-spiffe/v2/spiffetls/tlsconfig"
@@ -322,7 +323,8 @@ aws_session_token = sessiontoken-2
 			var awsInvocations int
 			awsTestServer := makeAWSTestServer(t, &awsInvocations, testCase.AWSCredentialLifetimes)
 			awsProvider, err := provider.NewAWSSTSAssumeRoleProvider(context.Background(), provider.AWSSTSAssumeRoleProviderOptions{
-				Endpoint: awsTestServer.URL,
+				Endpoint:           awsTestServer.URL,
+				CredentialOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
 			})
 			require.NoError(t, err)
 
