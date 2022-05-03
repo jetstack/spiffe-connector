@@ -6,6 +6,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -30,6 +31,7 @@ type CredentialManager struct {
 
 func (c *CredentialManager) Run(ctx context.Context) error {
 	var authorizer tlsconfig.Authorizer
+	c.refresh = make(chan struct{}, 60)
 	if len(c.ServerSPIFFEID) > 0 {
 		id, err := spiffeid.FromString(c.ServerSPIFFEID)
 		if err != nil {
@@ -59,6 +61,7 @@ func (c *CredentialManager) Run(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
+			close(c.refresh)
 			return ctx.Err()
 		case <-c.refresh:
 			err := c.refreshCredentials(ctx)
@@ -99,7 +102,16 @@ func (c *CredentialManager) applyCredentials() error {
 			if f == nil {
 				continue
 			}
-			if err := os.WriteFile(f.Path, f.Contents, os.FileMode(f.Mode)); err != nil {
+			filePath := f.Path
+			if strings.HasPrefix(f.Path, "~/") {
+				home, err := os.UserHomeDir()
+				if err != nil {
+					return fmt.Errorf("received credential contains path %s but could not determine user home directory: %w", f.Path, err)
+				}
+				// maybe consider what to do with non-unixy hosts
+				filePath = strings.Replace(filePath, "~/", home+"/", 1)
+			}
+			if err := os.WriteFile(filePath, f.Contents, os.FileMode(f.Mode)); err != nil {
 				return err
 			}
 		}
@@ -119,6 +131,9 @@ func (c *CredentialManager) scheduleNext() {
 	next := time.Now().Add(math.MaxInt)
 	for _, cred := range creds {
 		if cred == nil {
+			continue
+		}
+		if cred.NotAfter == nil {
 			continue
 		}
 		if cred.NotAfter.AsTime().Before(next) {
