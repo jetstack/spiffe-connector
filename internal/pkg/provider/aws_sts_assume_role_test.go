@@ -26,8 +26,8 @@ func TestAWSSTSAssumeRoleProvider_Name(t *testing.T) {
 
 	// create a new provider backed by our test server
 	p, err := NewAWSSTSAssumeRoleProvider(context.Background(), AWSSTSAssumeRoleProviderOptions{
-		Endpoint:           testIAMServer.URL,
-		CredentialOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
+		Endpoint:            testIAMServer.URL,
+		CredentialsOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
 	})
 	require.NoError(t, err)
 
@@ -42,8 +42,8 @@ func TestAWSSTSAssumeRoleProvider_Ping(t *testing.T) {
 
 	// create a new provider backed by our test server
 	p, err := NewAWSSTSAssumeRoleProvider(context.Background(), AWSSTSAssumeRoleProviderOptions{
-		Endpoint:           testIAMServer.URL,
-		CredentialOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
+		Endpoint:            testIAMServer.URL,
+		CredentialsOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
 	})
 	require.NoError(t, err)
 
@@ -146,8 +146,8 @@ aws_session_token = sessiontoken
 
 		// create a new provider backed by our test server
 		p, err := NewAWSSTSAssumeRoleProvider(context.Background(), AWSSTSAssumeRoleProviderOptions{
-			Endpoint:           testServer.URL,
-			CredentialOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
+			Endpoint:            testServer.URL,
+			CredentialsOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
 		})
 		require.NoError(t, err)
 		println(p.stsService.Endpoint)

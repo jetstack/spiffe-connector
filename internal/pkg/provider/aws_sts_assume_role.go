@@ -29,8 +29,8 @@ type AWSSTSAssumeRoleProviderOptions struct {
 	// blocked by organisation settings.
 	Duration int64
 
-	// CredentialOverride will use explicit credentials if set, rather than letting the AWS SDK discover them
-	CredentialOverride *credentials.Credentials
+	// CredentialsOverride will use explicit credentials if set, rather than letting the AWS SDK discover them
+	CredentialsOverride *credentials.Credentials
 }
 
 // AWSSTSAssumeRoleProvider is a provider used to get short lived credentials from AWS STS
@@ -80,8 +80,8 @@ func NewAWSSTSAssumeRoleProvider(ctx context.Context, options AWSSTSAssumeRolePr
 		config.Endpoint = &options.Endpoint
 		config.Region = &options.Region
 	}
-	if options.CredentialOverride != nil {
-		config.Credentials = options.CredentialOverride
+	if options.CredentialsOverride != nil {
+		config.Credentials = options.CredentialsOverride
 	}
 
 	sess, err := session.NewSession(&config)

@@ -12,6 +12,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/oauth2/google"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/jetstack/spiffe-connector/internal/pkg/server/proto"
@@ -26,6 +27,10 @@ func TestGoogleIAMServiceAccountKeyProvider_Name(t *testing.T) {
 	// create a new provider backed by our test server
 	p, err := NewGoogleIAMServiceAccountKeyProvider(context.Background(), GoogleIAMServiceAccountKeyProviderOptions{
 		Endpoint: testIAMServer.URL,
+		CredentialsOverride: &google.Credentials{
+			ProjectID: "test",
+			JSON:      []byte(`{}`),
+		},
 	})
 	require.NoError(t, err)
 
@@ -41,6 +46,10 @@ func TestGoogleIAMServiceAccountKeyProvider_Ping(t *testing.T) {
 	// create a new provider backed by our test server
 	p, err := NewGoogleIAMServiceAccountKeyProvider(context.Background(), GoogleIAMServiceAccountKeyProviderOptions{
 		Endpoint: testIAMServer.URL,
+		CredentialsOverride: &google.Credentials{
+			ProjectID: "test",
+			JSON:      []byte(`{}`),
+		},
 	})
 	require.NoError(t, err)
 
@@ -141,6 +150,10 @@ func TestGoogleIAMServiceAccountKeyProvider_GetCredential(t *testing.T) {
 		// create a new provider backed by our test server
 		p, err := NewGoogleIAMServiceAccountKeyProvider(context.Background(), GoogleIAMServiceAccountKeyProviderOptions{
 			Endpoint: testServer.URL,
+			CredentialsOverride: &google.Credentials{
+				ProjectID: "test",
+				JSON:      []byte(`{}`),
+			},
 		})
 		require.NoError(t, err)
 

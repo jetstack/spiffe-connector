@@ -323,8 +323,8 @@ aws_session_token = sessiontoken-2
 			var awsInvocations int
 			awsTestServer := makeAWSTestServer(t, &awsInvocations, testCase.AWSCredentialLifetimes)
 			awsProvider, err := provider.NewAWSSTSAssumeRoleProvider(context.Background(), provider.AWSSTSAssumeRoleProviderOptions{
-				Endpoint:           awsTestServer.URL,
-				CredentialOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
+				Endpoint:            awsTestServer.URL,
+				CredentialsOverride: credentials.NewStaticCredentials("foo", "bar", "baz"),
 			})
 			require.NoError(t, err)
 
