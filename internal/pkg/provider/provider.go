@@ -2,27 +2,11 @@
 package provider
 
 import (
-	"io/fs"
-	"time"
+	"github.com/jetstack/spiffe-connector/internal/pkg/server/proto"
 )
 
 type Provider interface {
 	Name() string
 	Ping() error
-	GetCredential(objectReference string) (*Credential, error)
-}
-
-type Credential struct {
-	Files    []CredentialFile
-	EnvVars  map[string]string
-	Username *string
-	Password *string
-	Token    *string
-	NotAfter time.Time
-}
-
-type CredentialFile struct {
-	Path     string
-	Mode     fs.FileMode
-	Contents []byte
+	GetCredential(objectReference string) (*proto.Credential, error)
 }

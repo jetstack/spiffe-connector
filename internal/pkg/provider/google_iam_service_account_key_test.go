@@ -8,9 +8,13 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"github.com/jetstack/spiffe-connector/internal/pkg/server/proto"
 )
 
 func TestGoogleIAMServiceAccountKeyProvider_Name(t *testing.T) {
@@ -67,7 +71,7 @@ func TestGoogleIAMServiceAccountKeyProvider_GetCredential(t *testing.T) {
 	testCases := map[string]struct {
 		objectReference      string
 		expectedError        error
-		expectedCredential   Credential
+		expectedCredential   *proto.Credential
 		testServer           func(*int) *httptest.Server
 		expectedRequestCount int
 	}{
@@ -117,8 +121,9 @@ func TestGoogleIAMServiceAccountKeyProvider_GetCredential(t *testing.T) {
 				}))
 			},
 			expectedRequestCount: 1,
-			expectedCredential: Credential{
-				Files: []CredentialFile{
+			expectedCredential: &proto.Credential{
+				NotAfter: timestamppb.New(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)),
+				Files: []*proto.File{
 					{
 						Path:     "key.json",
 						Mode:     0644,

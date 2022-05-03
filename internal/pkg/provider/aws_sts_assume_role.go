@@ -11,6 +11,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
+	"google.golang.org/protobuf/types/known/timestamppb"
+
+	"github.com/jetstack/spiffe-connector/internal/pkg/server/proto"
 )
 
 // AWSSTSAssumeRoleProviderOptions are the options available to configure a AWSSTSAssumeRoleProvider
@@ -113,7 +116,7 @@ func (p *AWSSTSAssumeRoleProvider) Ping() error {
 
 // GetCredential will use STS to get a short lived credential for the given objectReference (Role)
 // spiffe-connector must be able to AssumeRole for the supplied role for this to work
-func (p *AWSSTSAssumeRoleProvider) GetCredential(objectReference string) (Credential, error) {
+func (p *AWSSTSAssumeRoleProvider) GetCredential(objectReference string) (*proto.Credential, error) {
 	// sessionName is just a label, there can be many sessions with the same name
 	sessionName := "spiffe-connector"
 	input := &sts.AssumeRoleInput{
@@ -125,9 +128,9 @@ func (p *AWSSTSAssumeRoleProvider) GetCredential(objectReference string) (Creden
 	result, err := p.stsService.AssumeRole(input)
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
-			return Credential{}, fmt.Errorf("failed to get temporary credentials from STS: %s: %s", aerr.Code(), aerr.Message())
+			return &proto.Credential{}, fmt.Errorf("failed to get temporary credentials from STS: %s: %s", aerr.Code(), aerr.Message())
 		}
-		return Credential{}, fmt.Errorf("failed to get temporary credentials from STS: %w", err)
+		return &proto.Credential{}, fmt.Errorf("failed to get temporary credentials from STS: %w", err)
 	}
 
 	credentialsFile := fmt.Sprintf(`[default]
@@ -140,9 +143,9 @@ aws_session_token = %s
 		*result.Credentials.SessionToken,
 	)
 
-	return Credential{
-		NotAfter: *result.Credentials.Expiration,
-		Files: []CredentialFile{
+	return &proto.Credential{
+		NotAfter: timestamppb.New(*result.Credentials.Expiration),
+		Files: []*proto.File{
 			{
 				Path:     "~/.aws/credentials",
 				Mode:     0644,

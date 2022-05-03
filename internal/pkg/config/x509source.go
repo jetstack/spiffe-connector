@@ -50,6 +50,25 @@ func ConstructSpiffeConnectorSource(ctx context.Context, cancel context.CancelFu
 		return source, nil
 	}
 
+	if config.SVIDSources.InMemory != nil {
+		svid, err := x509svid.Parse(config.SVIDSources.InMemory.SVIDCert, config.SVIDSources.InMemory.SVIDKey)
+		if err != nil {
+			return source, err
+		}
+		if svid == nil {
+			return source, errors.New("no SVID provided in config file")
+		}
+		source.currentSVID.Store(svid)
+
+		bundle, err := x509bundle.Parse(spiffeid.RequireTrustDomainFromString("todo"), config.SVIDSources.InMemory.TrustDomainCA)
+		if err != nil {
+			return source, err
+		}
+		source.currentTrustBundle.Store(bundle)
+
+		return source, nil
+	}
+
 	// Otherwise, start watching files for SVIDs and Trust bundles.
 	if config.SVIDSources.Files == nil {
 		return nil, errors.New("neither workload API nor files provided in config file")
