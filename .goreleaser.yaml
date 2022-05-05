@@ -70,19 +70,6 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
-  - id: server-armv6
-    goarch: arm
-    goarm: "6"
-    image_templates:
-      - jetstack/spiffe-connector-server:{{ .Version }}-armv6
-    use: buildx
-    dockerfile: internal/cmd/server/Dockerfile
-    build_flag_templates:
-      - "--platform=linux/arm/v6"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
   - id: server-armv7
     goarch: arm
     goarm: "7"
@@ -156,19 +143,6 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
-  - id: sidecar-armv6
-    goarch: arm
-    goarm: "6"
-    image_templates:
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv6
-    use: buildx
-    dockerfile: internal/cmd/sidecar/Dockerfile
-    build_flag_templates:
-      - "--platform=linux/arm/v6"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
   - id: sidecar-armv7
     goarch: arm
     goarm: "7"
@@ -223,7 +197,6 @@ docker_manifests:
     image_templates:
       - jetstack/spiffe-connector-server:{{ .Version }}-amd64
       - jetstack/spiffe-connector-server:{{ .Version }}-arm64
-      - jetstack/spiffe-connector-server:{{ .Version }}-armv6
       - jetstack/spiffe-connector-server:{{ .Version }}-armv7
       - jetstack/spiffe-connector-server:{{ .Version }}-s390x
       - jetstack/spiffe-connector-server:{{ .Version }}-riscv64
@@ -232,7 +205,6 @@ docker_manifests:
     image_templates:
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-amd64
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-arm64
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv6
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv7
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-s390x
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-riscv64
