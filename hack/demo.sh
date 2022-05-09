@@ -28,6 +28,12 @@ until cmctl check api; do sleep 5; done
 kubectl apply -n cert-manager -f "./deploy/02-csi-driver-spiffe.yaml"
 kubectl apply -n cert-manager -f "./deploy/03-trust.yaml"
 
+while [ "$(kubectl get deployment -n cert-manager cert-manager-trust -o json | jq '.status.availableReplicas')" != "$(kubectl get deployment -n cert-manager cert-manager-trust -o json | jq '.spec.replicas')" ]
+do
+  echo "waiting for cm trust to start"
+  sleep 1
+done
+
 # Approve Trust webhook serving certificate
 sleep 2
 for i in $(kubectl get cr -n cert-manager -o=jsonpath="{.items[*]['metadata.name']}"); do cmctl approve -n cert-manager $i || true ; done
@@ -53,8 +59,19 @@ cat "./deploy/06-spiffe-connector-server.yaml" | \
   envsubst | \
   kubectl apply -f -
 
+while [ "$(kubectl get deployment -n spiffe-connector spiffe-connector -o json | jq '.status.availableReplicas')" != "$(kubectl get deployment -n spiffe-connector spiffe-connector -o json | jq '.spec.replicas')" ]
+do
+  echo "waiting for server to start"
+  sleep 1
+done
+
 # Deploy example workload with spiffe-connector sidecar
 cat "./deploy/07-example-app.yaml" | ARCH=$ARCH VERSION=$VERSION envsubst | kubectl apply -f -
 
 # port-forward to the application's UI
+while [ "$(kubectl get deployment -n example-app example-app -o json | jq '.status.availableReplicas')" != "$(kubectl get deployment -n example-app example-app -o json | jq '.spec.replicas')" ]
+do
+  echo "waiting for workload to start"
+  sleep 1
+done
 kubectl port-forward -n example-app svc/example-app 3000
