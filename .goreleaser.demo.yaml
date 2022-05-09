@@ -20,7 +20,7 @@ builds:
     targets:
       - linux_$ARCH
   - id: spiffe-connector-example
-    dir: ./example/
+    dir: ./example/internal/cmd/server
     binary: spiffe-connector-example
     env:
       - CGO_ENABLED=0
