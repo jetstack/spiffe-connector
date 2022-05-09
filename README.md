@@ -1,4 +1,4 @@
-⚠️ **Note** this repo is a demo for Kubecon 22 and is not suitable for more than experimentation ⚠️
+⚠️ **Note** this repo is a demo for Kubecon EU 22 and is not suitable for more than experimentation ⚠️
 
 # spiffe-connector
 
