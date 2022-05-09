@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Workload Foo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <div class="center pa1 mw8">
+      <div class="flex">
+        <div class="outline w-third ma1 pa3">
+          <h2>Files in AWS S3</h2>
+          <ul>
+          {{range $file := .S3Files }}
+            <li><code>{{$file}}</code></li>
+          {{end}}
+          </ul>
+        </div>
+        <div class="w-third ma1 pa3">
+          <h2></h2>
+          <form action="/move" method="post">
+            <input class="w-100 ba bw2 b--dark-green b bg-green pa3 grow db white" type="submit" value="Move Files">
+          </form>
+        </div>
+        <div class="outline w-third ma1 pa3">
+          <h2>Files in Google Cloud Storage</h2>
+          <ul>
+          {{range $file := .GCSFiles }}
+            <li><code>{{$file}}</code></li>
+          {{end}}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

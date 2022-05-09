@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/urfave/cli/v2"
 
@@ -45,6 +46,12 @@ func Run(ctx *cli.Context) error {
 		return cli.Exit(fmt.Sprintf("Couldn't get SPIFFE ID from workload API or files (%s)", err.Error()), 1)
 	}
 	config.StoreCurrentSource(source)
+
+	svid, err := source.GetX509SVID()
+	if err != nil {
+		return cli.Exit(fmt.Sprintf("Couldn't determine SPIFFE ID (%s)", err.Error()), 1)
+	}
+	log.Println("starting credential manager for ", svid.ID.String())
 
 	mgr := sidecar.CredentialManager{
 		ServerSPIFFEID: ctx.String("server-spiffe-id"),

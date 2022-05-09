@@ -146,7 +146,7 @@ func TestGoogleIAMServiceAccountKeyProvider_GetCredential(t *testing.T) {
 				NotAfter: timestamppb.New(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)),
 				Files: []*proto.File{
 					{
-						Path:     "key.json",
+						Path:     "~/.config/gcloud/application_default_credentials.json",
 						Mode:     0644,
 						Contents: []byte(validJSONKeyFileData),
 					},

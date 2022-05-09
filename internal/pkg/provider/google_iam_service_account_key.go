@@ -119,7 +119,7 @@ func (p *GoogleIAMServiceAccountKeyProvider) GetCredential(objectReference strin
 		NotAfter: timestamppb.New(notAfter),
 		Files: []*proto.File{
 			{
-				Path:     "key.json",
+				Path:     "~/.config/gcloud/application_default_credentials.json",
 				Mode:     0644,
 				Contents: []byte(jsonKeyFile),
 			},

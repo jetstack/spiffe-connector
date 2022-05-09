@@ -194,7 +194,7 @@ func TestServer_GetCredentials(t *testing.T) {
 						NotAfter: timestamppb.New(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)),
 						Files: []*proto.File{
 							{
-								Path:     "key.json",
+								Path:     "~/.config/gcloud/application_default_credentials.json",
 								Mode:     0644,
 								Contents: []byte(googleJSONKeyFileData),
 							},
@@ -251,7 +251,7 @@ aws_session_token = sessiontoken-1
 						NotAfter: timestamppb.New(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)),
 						Files: []*proto.File{
 							{
-								Path:     "key.json",
+								Path:     "~/.config/gcloud/application_default_credentials.json",
 								Mode:     0644,
 								Contents: []byte(googleJSONKeyFileData),
 							},
@@ -287,7 +287,7 @@ aws_session_token = sessiontoken-1
 						NotAfter: timestamppb.New(time.Date(9999, 12, 31, 23, 59, 59, 0, time.UTC)),
 						Files: []*proto.File{
 							{
-								Path:     "key.json",
+								Path:     "~/.config/gcloud/application_default_credentials.json",
 								Mode:     0644,
 								Contents: []byte(googleJSONKeyFileData),
 							},

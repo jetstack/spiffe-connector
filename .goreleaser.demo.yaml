@@ -1,0 +1,70 @@
+project_name: spiffe-connector
+before:
+  hooks:
+    - go mod tidy
+    - go test -v ./...
+    - curl --etag-compare ./etag.txt --etag-save ./etag.txt --remote-name https://curl.se/ca/cacert.pem
+builds:
+  - id: spiffe-connector-server
+    main: ./internal/cmd/server
+    binary: spiffe-connector-server
+    env:
+      - CGO_ENABLED=0
+    targets:
+      - linux_$ARCH
+  - id: spiffe-connector-sidecar
+    main: ./internal/cmd/sidecar
+    binary: spiffe-connector-sidecar
+    env:
+      - CGO_ENABLED=0
+    targets:
+      - linux_$ARCH
+  - id: spiffe-connector-example
+    dir: ./example/
+    binary: spiffe-connector-example
+    env:
+      - CGO_ENABLED=0
+    targets:
+      - linux_$ARCH
+archives:
+  - format: tar.gz
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+dockers:
+  - id: server-$ARCH
+    goarch: $ARCH
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Env.VERSION }}-$ARCH
+    use: buildx
+    dockerfile: internal/cmd/server/Dockerfile
+    extra_files:
+      - cacert.pem
+  - id: sidecar-$ARCH
+    goarch: $ARCH
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Env.VERSION }}-$ARCH
+    use: buildx
+    dockerfile: internal/cmd/sidecar/Dockerfile
+    extra_files:
+      - cacert.pem
+  - id: example-$ARCH
+    goarch: $ARCH
+    image_templates:
+      - jetstack/spiffe-connector-example:{{ .Env.VERSION }}-$ARCH
+    use: buildx
+    dockerfile: example/Dockerfile
+    extra_files:
+      - cacert.pem
+docker_manifests:
+  - name_template: jetstack/spiffe-connector-server:{{ .Env.VERSION }}
+    image_templates:
+      - jetstack/spiffe-connector-server:{{ .Env.VERSION }}-$ARCH
+  - name_template: jetstack/spiffe-connector-sidecar:{{ .Env.VERSION }}
+    image_templates:
+      - jetstack/spiffe-connector-sidecar:{{ .Env.VERSION }}-$ARCH
+  - name_template: jetstack/spiffe-connector-example:{{ .Env.VERSION }}
+    image_templates:
+      - jetstack/spiffe-connector-example:{{ .Env.VERSION }}-$ARCH

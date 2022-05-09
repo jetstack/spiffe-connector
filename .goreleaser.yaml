@@ -3,6 +3,7 @@ before:
   hooks:
     - go mod tidy
     - go test -v ./...
+    - curl --etag-compare ./etag.txt --etag-save ./etag.txt --remote-name https://curl.se/ca/cacert.pem
 builds:
   - id: spiffe-connector-server
     main: ./internal/cmd/server
@@ -12,7 +13,6 @@ builds:
     goos:
       - linux
     goarch:
-      - '386'
       - amd64
       - arm
       - arm64
@@ -30,7 +30,6 @@ builds:
     goos:
       - linux
     goarch:
-      - "386"
       - amd64
       - arm
       - arm64
@@ -60,18 +59,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
-  - id: server-386
-    goarch: "386"
-    image_templates:
-      - jetstack/spiffe-connector-server:{{ .Version }}-386
-    use: buildx
-    dockerfile: internal/cmd/server/Dockerfile
-    build_flag_templates:
-      - "--platform=linux/386"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+    - cacert.pem
   - id: server-arm64
     goarch: arm64
     image_templates:
@@ -84,6 +73,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: server-armv6
     goarch: arm
     goarm: "6"
@@ -97,6 +88,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: server-armv7
     goarch: arm
     goarm: "7"
@@ -110,6 +103,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: server-s390x
     goarch: s390x
     image_templates:
@@ -122,6 +117,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: server-riscv64
     goarch: riscv64
     image_templates:
@@ -134,6 +131,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: server-ppc64le
     goarch: ppc64le
     image_templates:
@@ -146,6 +145,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: sidecar-amd64
     goarch: amd64
     image_templates:
@@ -158,18 +159,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
-  - id: sidecar-386
-    goarch: "386"
-    image_templates:
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-386
-    use: buildx
-    dockerfile: internal/cmd/sidecar/Dockerfile
-    build_flag_templates:
-      - "--platform=linux/386"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: sidecar-arm64
     goarch: arm64
     image_templates:
@@ -182,6 +173,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: sidecar-armv6
     goarch: arm
     goarm: "6"
@@ -195,6 +188,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: sidecar-armv7
     goarch: arm
     goarm: "7"
@@ -208,6 +203,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: sidecar-s390x
     goarch: s390x
     image_templates:
@@ -220,6 +217,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: sidecar-riscv64
     goarch: riscv64
     image_templates:
@@ -232,6 +231,8 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
   - id: sidecar-ppc64le
     goarch: ppc64le
     image_templates:
@@ -244,11 +245,12 @@ dockers:
       - "--label=org.opencontainers.image.title={{.ProjectName}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - cacert.pem
 docker_manifests:
   - name_template: jetstack/spiffe-connector-server:{{ .Version }}
     image_templates:
       - jetstack/spiffe-connector-server:{{ .Version }}-amd64
-      - jetstack/spiffe-connector-server:{{ .Version }}-386
       - jetstack/spiffe-connector-server:{{ .Version }}-arm64
       - jetstack/spiffe-connector-server:{{ .Version }}-armv6
       - jetstack/spiffe-connector-server:{{ .Version }}-armv7
@@ -258,7 +260,6 @@ docker_manifests:
   - name_template: jetstack/spiffe-connector-sidecar:{{ .Version }}
     image_templates:
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-amd64
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-386
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-arm64
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv6
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv7
@@ -267,8 +268,6 @@ docker_manifests:
       - jetstack/spiffe-connector-sidecar:{{ .Version }}-ppc64le
 checksum:
   name_template: 'checksums.txt'
-#sboms:
-#  - artifacts: archive
 changelog:
   sort: asc
   filters:

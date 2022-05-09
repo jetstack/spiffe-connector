@@ -45,7 +45,9 @@ func (s *Server) GetCredentials(ctx context.Context, empty *emptypb.Empty) (*pro
 	// find any ACL matches for the caller. If there are no matches, an empty list of credentials will be returned
 	acl, err := principal.MatchingACL(s.ACLs, clientSVID.String())
 	if err != nil {
-		return nil, fmt.Errorf("failed to determine matching ACLs: %w", err)
+		err := fmt.Errorf("failed to determine matching ACLs: %s", err)
+		log.Println(err)
+		return nil, err
 	}
 	if acl == nil {
 		return resp, nil
@@ -56,7 +58,9 @@ func (s *Server) GetCredentials(ctx context.Context, empty *emptypb.Empty) (*pro
 		// invalid config
 		p, ok := s.Providers[aclCred.Provider]
 		if !ok {
-			return nil, fmt.Errorf("server is not configured with %q provider", aclCred.Provider)
+			err := fmt.Errorf("server is not configured with %q provider", aclCred.Provider)
+			log.Println(err)
+			return nil, err
 		}
 
 		fmt.Println(aclCred.Key())
@@ -71,7 +75,9 @@ func (s *Server) GetCredentials(ctx context.Context, empty *emptypb.Empty) (*pro
 
 		credential, err := p.GetCredential(aclCred.ObjectReference)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get credential %q from %q provider: %w", aclCred.ObjectReference, aclCred.Provider, err)
+			err := fmt.Errorf("failed to get credential %q from %q provider: %w", aclCred.ObjectReference, aclCred.Provider, err)
+			log.Println(err)
+			return nil, err
 		}
 
 		if s.credentialStore == nil {

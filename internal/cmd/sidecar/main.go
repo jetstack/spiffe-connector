@@ -58,7 +58,7 @@ func main() {
 			},
 			&cli.StringFlag{
 				Name:      "trusted-ca-file",
-				Aliases:   []string{"key"},
+				Aliases:   []string{"ca"},
 				Usage:     "Path to CAs that are trusted to sign SVIDs",
 				EnvVars:   []string{"SPIFFE_CONNECTOR_TRUSTED_CA_FILE"},
 				Required:  false,
