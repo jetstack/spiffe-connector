@@ -11,7 +11,7 @@ cat .goreleaser.demo.yaml | ARCH=$ARCH envsubst > .goreleaser.demo.$ARCH.yaml
 
 VERSION=$VERSION goreleaser release -f .goreleaser.demo.$ARCH.yaml --snapshot --rm-dist
 
-kind get clusters | grep $PROJECT || kind create cluster --name $PROJECT
+kind get clusters | grep $PROJECT || kind create cluster --name $PROJECT --image=kindest/node:v1.23.4
 
 kind get kubeconfig --name spiffe-connector > ./dist/kubeconfig
 export KUBECONFIG=./dist/kubeconfig
