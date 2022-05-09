@@ -113,6 +113,10 @@ spec:
       labels:
         app: spiffe-connector
     spec:
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
       serviceAccountName: spiffe-connector
       containers:
       - name: spiffe-connector
