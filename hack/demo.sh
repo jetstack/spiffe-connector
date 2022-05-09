@@ -55,3 +55,6 @@ cat "./deploy/06-spiffe-connector-server.yaml" | \
 
 # Deploy example workload with spiffe-connector sidecar
 cat "./deploy/07-example-app.yaml" | ARCH=$ARCH VERSION=$VERSION envsubst | kubectl apply -f -
+
+# port-forward to the application's UI
+kubectl port-forward -n example-app svc/example-app 3000
