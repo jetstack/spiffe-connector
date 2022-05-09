@@ -1,3 +1,5 @@
 *.pem
 test.yaml
 dist/
+cacert.pem
+etag.txt

@@ -147,7 +147,7 @@ spec:
           driver: spiffe.csi.cert-manager.io
           readOnly: true
           volumeAttributes:
-            spiffe.csi.cert-manager.io/fs-group: "65532"
+            spiffe.csi.cert-manager.io/fs-group: "65534"
       - name: config
         configMap:
           name: server-config
