@@ -87,6 +87,10 @@ spec:
         app: example-app
     spec:
       serviceAccountName: example-app
+      securityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+        fsGroup: 65534
       containers:
       - name: example-app
         image: jetstack/spiffe-connector-example:$VERSION-$ARCH
