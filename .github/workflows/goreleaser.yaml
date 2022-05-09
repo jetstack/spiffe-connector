@@ -5,10 +5,9 @@ on:
   push:
     tags:
       - "*"
-      
-      
+
 permissions:
-  contents: read
+  contents: write # needed to update the data of a release
   packages: write
 
 jobs:
