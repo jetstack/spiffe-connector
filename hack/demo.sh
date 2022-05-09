@@ -3,7 +3,7 @@
 set -exuo pipefail
 
 PROJECT=spiffe-connector
-ARCH=$(uname -m)
+ARCH=$(go env GOARCH)
 VERSION=$(git ls-files | xargs -n 1 cat | md5sum | head -c 7)
 KUBECONFIG=./dist/kubeconfig
 
