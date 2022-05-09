@@ -50,7 +50,7 @@ dockers:
   - id: server-amd64
     goarch: amd64
     image_templates:
-      - jetstack/spiffe-connector-server:{{ .Version }}-amd64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-amd64
     use: buildx
     dockerfile: internal/cmd/server/Dockerfile
     build_flag_templates:
@@ -64,7 +64,7 @@ dockers:
   - id: server-arm64
     goarch: arm64
     image_templates:
-      - jetstack/spiffe-connector-server:{{ .Version }}-arm64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-arm64
     use: buildx
     dockerfile: internal/cmd/server/Dockerfile
     build_flag_templates:
@@ -79,7 +79,7 @@ dockers:
     goarch: arm
     goarm: "6"
     image_templates:
-      - jetstack/spiffe-connector-server:{{ .Version }}-armv6
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-armv6
     use: buildx
     dockerfile: internal/cmd/server/Dockerfile
     build_flag_templates:
@@ -94,7 +94,7 @@ dockers:
     goarch: arm
     goarm: "7"
     image_templates:
-      - jetstack/spiffe-connector-server:{{ .Version }}-armv7
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-armv7
     use: buildx
     dockerfile: internal/cmd/server/Dockerfile
     build_flag_templates:
@@ -108,7 +108,7 @@ dockers:
   - id: server-s390x
     goarch: s390x
     image_templates:
-      - jetstack/spiffe-connector-server:{{ .Version }}-s390x
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-s390x
     use: buildx
     dockerfile: internal/cmd/server/Dockerfile
     build_flag_templates:
@@ -122,7 +122,7 @@ dockers:
   - id: server-riscv64
     goarch: riscv64
     image_templates:
-      - jetstack/spiffe-connector-server:{{ .Version }}-riscv64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-riscv64
     use: buildx
     dockerfile: internal/cmd/server/Dockerfile
     build_flag_templates:
@@ -136,7 +136,7 @@ dockers:
   - id: server-ppc64le
     goarch: ppc64le
     image_templates:
-      - jetstack/spiffe-connector-server:{{ .Version }}-ppc64le
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-ppc64le
     use: buildx
     dockerfile: internal/cmd/server/Dockerfile
     build_flag_templates:
@@ -150,7 +150,7 @@ dockers:
   - id: sidecar-amd64
     goarch: amd64
     image_templates:
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-amd64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-amd64
     use: buildx
     dockerfile: internal/cmd/sidecar/Dockerfile
     build_flag_templates:
@@ -164,7 +164,7 @@ dockers:
   - id: sidecar-arm64
     goarch: arm64
     image_templates:
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-arm64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-arm64
     use: buildx
     dockerfile: internal/cmd/sidecar/Dockerfile
     build_flag_templates:
@@ -179,7 +179,7 @@ dockers:
     goarch: arm
     goarm: "6"
     image_templates:
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv6
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-armv6
     use: buildx
     dockerfile: internal/cmd/sidecar/Dockerfile
     build_flag_templates:
@@ -194,7 +194,7 @@ dockers:
     goarch: arm
     goarm: "7"
     image_templates:
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv7
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-armv7
     use: buildx
     dockerfile: internal/cmd/sidecar/Dockerfile
     build_flag_templates:
@@ -208,7 +208,7 @@ dockers:
   - id: sidecar-s390x
     goarch: s390x
     image_templates:
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-s390x
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-s390x
     use: buildx
     dockerfile: internal/cmd/sidecar/Dockerfile
     build_flag_templates:
@@ -222,7 +222,7 @@ dockers:
   - id: sidecar-riscv64
     goarch: riscv64
     image_templates:
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-riscv64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-riscv64
     use: buildx
     dockerfile: internal/cmd/sidecar/Dockerfile
     build_flag_templates:
@@ -236,7 +236,7 @@ dockers:
   - id: sidecar-ppc64le
     goarch: ppc64le
     image_templates:
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-ppc64le
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-ppc64le
     use: buildx
     dockerfile: internal/cmd/sidecar/Dockerfile
     build_flag_templates:
@@ -248,24 +248,24 @@ dockers:
     extra_files:
       - cacert.pem
 docker_manifests:
-  - name_template: jetstack/spiffe-connector-server:{{ .Version }}
+  - name_template: ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}
     image_templates:
-      - jetstack/spiffe-connector-server:{{ .Version }}-amd64
-      - jetstack/spiffe-connector-server:{{ .Version }}-arm64
-      - jetstack/spiffe-connector-server:{{ .Version }}-armv6
-      - jetstack/spiffe-connector-server:{{ .Version }}-armv7
-      - jetstack/spiffe-connector-server:{{ .Version }}-s390x
-      - jetstack/spiffe-connector-server:{{ .Version }}-riscv64
-      - jetstack/spiffe-connector-server:{{ .Version }}-ppc64le
-  - name_template: jetstack/spiffe-connector-sidecar:{{ .Version }}
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-amd64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-arm64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-armv6
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-armv7
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-s390x
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-riscv64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-server:{{ .Version }}-ppc64le
+  - name_template: ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}
     image_templates:
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-amd64
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-arm64
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv6
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-armv7
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-s390x
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-riscv64
-      - jetstack/spiffe-connector-sidecar:{{ .Version }}-ppc64le
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-amd64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-arm64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-armv6
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-armv7
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-s390x
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-riscv64
+      - ghcr.io/jetstack/spiffe-connector/spiffe-connector-sidecar:{{ .Version }}-ppc64le
 checksum:
   name_template: 'checksums.txt'
 changelog:
