@@ -96,10 +96,10 @@ spec:
         - mountPath: /etc/config
           name: config
           readOnly: true
-        - mountPath: /home/nonroot/.aws
+        - mountPath: /.aws
           name: aws
           readOnly: true
-        - mountPath: /home/nonroot/.config/gcloud
+        - mountPath: /.config/gcloud
           name: gcloud
           readOnly: true
 
@@ -112,10 +112,10 @@ spec:
           - --tls-key-file=/var/run/secrets/spiffe.io/tls.key
           - --trusted-ca-file=/var/run/secrets/spiffe.io/ca.crt
         volumeMounts:
-        - mountPath: /home/nonroot/.aws
+        - mountPath: /.aws
           name: aws
           readOnly: false
-        - mountPath: /home/nonroot/.config/gcloud
+        - mountPath: /.config/gcloud
           name: gcloud
           readOnly: false
         - mountPath: /var/run/secrets/spiffe.io
