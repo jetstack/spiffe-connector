@@ -48,18 +48,14 @@ until cmctl check api; do sleep 5; done
 # install CSI driver and trust
 kubectl apply -n cert-manager -f "./deploy/02-csi-driver-spiffe.yaml"
 kubectl apply -n cert-manager -f "./deploy/03-trust.yaml"
+sleep 2
+for i in $(kubectl get cr -n cert-manager -o=jsonpath="{.items[*]['metadata.name']}"); do cmctl approve -n cert-manager $i || true ; done
 
 while [ "$(kubectl get deployment -n cert-manager cert-manager-trust -o json | jq '.status.availableReplicas')" != "$(kubectl get deployment -n cert-manager cert-manager-trust -o json | jq '.spec.replicas')" ]
 do
   echo "waiting for cm trust to start"
   sleep 1
 done
-
-# Approve Trust webhook serving certificate
-sleep 2
-for i in $(kubectl get cr -n cert-manager -o=jsonpath="{.items[*]['metadata.name']}"); do cmctl approve -n cert-manager $i || true ; done
-
-until kubectl rollout status -n cert-manager deployment/cert-manager-trust ; do sleep 5; done
 
 # Bootstrap a self-signed CA
 kubectl apply -n cert-manager -f "./deploy/04-selfsigned-ca.yaml"
