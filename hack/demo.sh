@@ -7,15 +7,36 @@ ARCH=$(go env GOARCH)
 VERSION=$(git ls-files | xargs -n 1 cat | md5sum | head -c 7)
 KUBECONFIG=./dist/kubeconfig
 
+# build the application and images with goreleaser
 cat .goreleaser.demo.yaml | ARCH=$ARCH envsubst > .goreleaser.demo.$ARCH.yaml
-
 VERSION=$VERSION goreleaser release -f .goreleaser.demo.$ARCH.yaml --snapshot --rm-dist
 
+# create a new kind cluster and connect to it
 kind get clusters | grep $PROJECT || kind create cluster --name $PROJECT --image=kindest/node:v1.23.4
-
 kind get kubeconfig --name spiffe-connector > ./dist/kubeconfig
 export KUBECONFIG=./dist/kubeconfig
 
+# load all the images used in dependencies
+images=(
+  "quay.io/jetstack/cert-manager-controller:v1.6.1" \
+  "quay.io/jetstack/cert-manager-cainjector:v1.6.1" \
+  "quay.io/jetstack/cert-manager-webhook:v1.6.1" \
+  "k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.5.0" \
+  "k8s.gcr.io/sig-storage/livenessprobe:v2.6.0" \
+  "quay.io/jetstack/cert-manager-csi-driver-spiffe:v0.2.0" \
+  "quay.io/jetstack/cert-manager-csi-driver-spiffe-approver:v0.2.0" \
+  "quay.io/jetstack/cert-manager-trust:v0.1.0" \
+)
+for image in "${images[@]}"
+do
+  echo preloading $image
+  if [ -z "$(docker images -q $image)" ]; then
+    docker pull $image
+  fi
+  kind load docker-image --name $PROJECT quay.io/jetstack/cert-manager-controller:v1.6.1
+done
+
+# load the demo images
 kind load docker-image --name $PROJECT "jetstack/spiffe-connector-server:$VERSION-$ARCH"
 kind load docker-image --name $PROJECT "jetstack/spiffe-connector-sidecar:$VERSION-$ARCH"
 kind load docker-image --name $PROJECT "jetstack/spiffe-connector-example:$VERSION-$ARCH"
