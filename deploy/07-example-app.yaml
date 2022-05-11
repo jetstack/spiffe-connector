@@ -86,11 +86,11 @@ spec:
       labels:
         app: example-app
     spec:
-      serviceAccountName: example-app
       securityContext:
         runAsUser: 65534
         runAsGroup: 65534
         fsGroup: 65534
+      serviceAccountName: example-app
       containers:
       - name: example-app
         image: jetstack/spiffe-connector-example:$VERSION-$ARCH
@@ -106,7 +106,6 @@ spec:
         - mountPath: /.config/gcloud
           name: gcloud
           readOnly: true
-
       - name: spiffe-connector-sidecar
         image: jetstack/spiffe-connector-sidecar:$VERSION-$ARCH
         args:
